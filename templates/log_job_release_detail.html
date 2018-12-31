@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>日志详细信息
+                                <small>|&nbsp;<a href="{% url 'log_release' %}">发布日志</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <table id="datatable" class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>项目</th>
+                                        <td>{{ log_detail.project }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>任务ID</th>
+                                        <td>{{ log_detail.jid }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>发布批次</th>
+                                        <td>{{ log_detail.batch }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>状态</th>
+                                        <td>{% if msg_type %}回退{% else %}发布{% endif %}
+                                            {% if log_detail.status %}<span class="">成功</span>
+                                        {% else %}<span class="">失败</span>{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="vertical-align: middle;">详细信息</th>
+                                        <td>
+                                            <span>执行人： {{ log_detail.user }}</span><br />
+                                            <span>来源IP： {{ log_detail.action_ip }}</span><br />
+                                            <span>时间： {{ log_detail.created_time|date:"Y-m-d H:i:s" }}</span><br />
+                                            <span>结果： {{ log_detail.content|safe }}<br />原始数据：{{ log_detail.source_content }}</span>
+                                            </td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+{% endblock %}

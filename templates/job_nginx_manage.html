@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% load myfilter %}
+{% load myuserauth %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Nginx{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'nginx_list' %}">Nginx负载均衡</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="eloading"></div>
+                            <form class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="item form-group">
+                                    <!-- start project-detail sidebar -->
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                        <section class="panel">
+
+                                            <div class="x_title">
+                                                <h2>项目：{{ project.name }}</h2>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="panel-body">
+                                                {#                          <h4 class="green"><i class="fa fa-paint-brush"></i>项目</h4>#}
+                                                {#                          <p>{{ project.name }}</p>#}
+                                                <div class="project_detail">
+                                                    <p class="title">Nginx组</p>
+                                                    {% for nginx in project.lb_nginx.all %}
+                                                    <p>{{ nginx.groupname }}<br/>
+                                                        {% for h in nginx|nginx_host %}
+                                                            <span class="label label-info"
+                                                                  style="display:inline-block;">{{ h.ip }}</span>
+                                                        {% endfor %}
+                                                    </p>
+                                                    {% endfor %}
+                                                    <p class="title">后端端口</p>
+                                                    <p>{{ project.port }}</p>
+                                                </div>
+                                            </div>
+
+                                        </section>
+
+                                    </div>
+                                    <!-- end project-detail sidebar -->
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="">
+                                        <div class="x_title col-xs-12 col-md-12 col-sm-12"><h4>Nginx组</h4></div>
+                                    <div class="col-xs-5 col-sm-5 col-md-5">
+                                        <select name="nginx_group" id="nginx_group" class="form-control">
+                                            {% for nginx in project.lb_nginx.all %}
+                                                <option value="{{ nginx.pk }}">{{ nginx.groupname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>后端主机</h4></div>
+                                        <select name="from[]" id="search1" class="form-control" size="8"
+                                                multiple="multiple">
+                                            {% for h in host_list %}
+                                                <option value="{{ h.ip }}">{{ h.hostname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-xs-2" style="padding-top:60px;">
+                                        <button type="button" id="search1_rightAll" class="btn btn-block"><i
+                                                class="fa fa-forward"></i></button>
+                                        <button type="button" id="search1_rightSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-right"></i></button>
+                                        <button type="button" id="search1_leftSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-left"></i></button>
+                                        <button type="button" id="search1_leftAll" class="btn btn-block"><i
+                                                class="fa fa-backward"></i></button>
+                                    </div>
+
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>已选主机</h4></div>
+                                        <select id="search1_to" name="hosts" class="form-control" size="8"
+                                                multiple="multiple">
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="nginx-result"></div>
+                                {% if perms.qcloud.view_qlb %}
+                                    <div class="form-group">
+                                        <div>
+                                            <a href="#"
+                                               onclick="nginx_backend(this, 'del')"
+                                               class="btn btn-warning btn-sm">
+                                                摘除后端
+                                            </a>
+                                            <a href="#"
+                                               onclick="nginx_backend(this, 'add')"
+                                               class="btn btn-info btn-sm">
+                                                挂载后端
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- validator -->
+    <script type="text/javascript" src="/static/js/validator.min.js"></script>
+    <script type="text/javascript" src="/static/js/multiselect.min.js"></script>
+    <script type="text/javascript" src="/static/js/csrf.js"></script>
+    <script src="/static/js/json2yaml.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('#search1').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+
+        });
+
+        function nginx_backend(obj, action) {
+            var project = "{{ pid }}";
+            var nginx_group = $("select[name='nginx_group']").val();
+            lip_list = $("select[name='hosts'] option").map(function () {
+                return $(this).val();
+                }).get()
+{#            }).get().join(',');#}
+            if (lip_list.length === 0) {
+                alert("请选择后端主机.");
+                return false;
+            }
+            $(obj).addClass("disabled");
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'nginx_modify' %}",
+                data: {project: project, nginx_group: nginx_group, "bid_list[]": lip_list, action: action},
+                dataType: "json",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    if (action === 'del') {
+                        tip = '摘除';
+                    } else {
+                        tip = '挂载';
+                    }
+
+                    var html = '';
+                    var fnum = 1;
+                    if (ret.retcode === 100) {
+                        $('.nginx-result').html('<div class="alert alert-info alert-dismissable" style="margin-top: 10px;">项目已禁用，禁止操作。</div>').css("margin-top", "40px");
+                    } else if (ret.retcode === 101) {
+                        $('.nginx-result').html('<div class="alert alert-info alert-dismissable" style="margin-top: 10px;">无' + tip + 'nginx权限。</div>').css("margin-top", "40px");
+                    } else {
+                        $.each(ret.result, function (i, item) {
+                            var retcode = item['retcode'];
+                            var ret = item['ret'];
+                            var host = item['host']
+                            if (retcode === 0 && ret === 0) {
+                                var spancss = 'bg-green';
+                                var icss = 'fa-check';
+                                var rst = '成功';
+                            } else if (ret === 99){
+                                spancss = 'bg-orange';
+                                icss = 'fa-exclamation-triangle';
+                                rst = '失败：配置无任何变更';
+                            } else if (ret === 102){
+                                spancss = 'bg-red';
+                                icss = 'fa-times';
+                                rst = '失败：配置测试不通过';
+                            } else {
+                                spancss = 'bg-red';
+                                icss = 'fa-times';
+                                rst = '失败：未知异常';
+                            }
+                            html = html + '<div class="panel panel-default"><div class="panel-heading">' +
+                                '<a class="panel-title collapsed" data-toggle="collapse" data-parent=".nginx-result" href="#panel-' + i + '"><div>' + host + '<span class="badge pull-right ' + spancss +
+                                '"><i class="fa ' + icss + '"></i></span></div></a></div>' +
+                                '<div id="panel-' + i + '" class="panel-collapse collapse"><div class="panel-body step' + i +
+                                '"><p>' + tip + '后端' + rst + '，返回信息：<br />' + json2yaml(item) + '</p></div></div></div>';
+                            fnum = fnum + 1;
+                        });
+                        $('.nginx-result').html(html);
+                    }
+                    $('.nginx-result').fadeIn();
+                    $(obj).removeClass("disabled");
+                    //setTimeout("$('.nginx-result').fadeOut()", 10000);
+                }
+            })
+        }
+    </script>
+
+
+{% endblock %}

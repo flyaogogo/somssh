@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ page_name }}</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <form id="system_config" class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label class="panel col-md-12 col-sm-12 col-xs-12">MongoDB配置
+                                </label>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">主机:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="mongodb-host" name="mongodb_ip" class="form-control"
+                                               value="{{ mongodb_ip }}"/>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">端口:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="mongodb-port" name="mongodb_port" class="form-control"
+                                               value="{{ mongodb_port }}"/>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">用户:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="mongodb-user" name="mongodb_user" class="form-control"
+                                               value="{{ mongodb_user }}"/>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">密码:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="mongodb-pwd" name="mongodb_pwd" class="form-control"
+                                               value="{{ mongodb_pwd }}"/>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">集合:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="mongodb-collection" name="mongodb_collection" class="form-control"
+                                               value="{{ mongodb_collection }}"/>
+                                    </div>
+                                </div>
+                                <label class="panel col-md-12 col-sm-12 col-xs-12"><span data-toggle="tooltip"
+                                                                                         title="Agent监控需要填写此token"
+                                                                                         data-placement="right">密钥配置 <i
+                                        class="fa fa-question"></i></span>
+                                </label>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">密钥:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="token" name="token" class="form-control" value="{{ token }}"/>
+                                    </div>
+                                    <a href="javascript:void(0);" onclick="get_token();" class="btn btn-primary btn-sm">随机生成</a>
+                                </div>
+                                <label class="panel col-md-12 col-sm-12 col-xs-12"><span data-toggle="tooltip"
+                                                                                         title="首页流量图监控"
+                                                                                         data-placement="right">监控网卡 <i
+                                        class="fa fa-question"></i></span>
+                                </label>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">网卡:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <select id="net-interface" name="net_interface" class="form-control">
+                                        {% for net in net_info %}
+                                            <option value="{{ net }}">{{ net }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <label class="panel col-md-12 col-sm-12 col-xs-12">日志配置
+                                </label>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">日志级别:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <select id="log-level" name="log_level" class="form-control">
+                                            <option value="INFO">INFO</option>
+                                            <option value="WARNING">WARNING</option>
+                                            <option value="ERRORr">ERROR</option>
+                                            <option value="CRITICAL">CRITICAL</option>
+                                            <option value="DEBUG">DEBUG</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <label class="panel col-md-12 col-sm-12 col-xs-12"><span data-toggle="tooltip"
+                                                                                         title="多个时间段以英文逗号','分隔。 示例: 11:30:00-13:30:00,17:30:00-18:30:00"
+                                                                                         data-placement="right">系统维护 <i
+                                        class="fa fa-question"></i></span>
+                                </label>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-3">维护时间:
+                                    </label>
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <input id="time_forbidden" name="time_forbidden" class="form-control"
+                                               value="{{ time_forbidden }}"/>
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-4 col-md-offset-2">
+                                        <button id="send" type="submit" class="btn btn-success">保存</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $("#log-level").find("option[value = '{{ log_level }}']").attr("selected", "selected");
+        $("#net-interface").find("option[value = '{{ net_interface }}']").attr("selected", "selected");
+        function get_token() {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'sys_config' %}",
+                data: {},
+                dataType: "json",
+                success: function (ret) {
+                    console.log(ret);
+                    $("#token").val(ret.token);
+                }
+            })
+        }
+    </script>
+{% endblock %}

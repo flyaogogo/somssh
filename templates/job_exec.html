@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% block css %}
+    {#    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">#}
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard_theme_arrows.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/static/select2/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+
+{% endblock %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ project.name }} {{ page_name }}｜
+                                <small><a href="{% url 'job_list' %}">发布任务</a></small>
+                            </h2>
+                            <input id="project-id" type="hidden" value="{{ project.id }}"/>
+                            <input id="project-user" type="hidden" value="{{ project.host_group.user }}"/>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <form id="job_create" method="post" action="" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- SmartWizard html -->
+                            <div class="eloading"></div>
+                            <div id="smartwizard">
+                                <ul>
+                                    <li><a href="#step-0"><b>项目信息</b><br/><em>
+                                        <small>项目 {{ project.name }} 发布信息</small>
+                                    </em></a></li>
+                                    {% for i in batchs %}
+                                        <li><a href="#step-{{ i.tag }}"><b>发布批次 {{ i.tag }}</b><br/><em>
+                                            <small>
+                                                {% if forloop.last %}全量发布及发布结果{% else %}灰度发布 {{ i.tag }}
+                                                    及发布结果{% endif %}</small>
+                                        </em></a></li>
+                                    {% endfor %}
+                                    {#                <li><a href="#step-{{ batch_num|add:1 }}">Step {{ batch_num|add:2 }}<br /><small>This is tab's description</small></a></li>#}
+                                </ul>
+
+                                <div>
+                                    <div id="step-0" class="">
+                                        <div class="row step-css">
+
+                                            <div class="step-label col-md-12 col-sm-12 col-xs-12" style="margin:30px;">
+                                                <ul>
+                                                    <li><b>部署用户</b>： {{ project.host_group.user }}</li>
+                                                    <li><b>当前版本</b>： {{ project.version }}</li>
+                                                    <li><b>发布版本</b>： {{ job.version }}</li>
+                                                    {% if project.lb_vip %}
+                                                        <li><b>负载均衡</b>： {{ project.lb_vip }}</li>
+                                                    {% endif %}
+                                                    <li><b>版本说明</b>： {{ job.remark }}</li>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                    {% for i in batchs %}
+                                        <div id="step-{{ i.tag }}" class="">
+                                            <div class="row step-css">
+
+
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                                    <div class="col-md-1 col-sm-1 col-xs-1">
+                                                    </div>
+
+                                                    <div class="row clearfix">
+                                                        <div class="container">
+                                                            <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                                                <div class="page-header">
+                                                                    <h4>
+                                                                        发布主机列表 |
+                                                                        <small>禁用的主机不进行发布</small>
+                                                                    </h4>
+                                                                </div>
+
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>
+                                                                            编号
+                                                                        </th>
+                                                                        <th>
+                                                                            主机名
+                                                                        </th>
+                                                                        <th>
+                                                                            主机IP
+                                                                        </th>
+                                                                        <th>
+                                                                            发布用户
+                                                                        </th>
+                                                                        <th>
+                                                                            状态
+                                                                        </th>
+                                                                        <th>
+                                                                            查看日志
+                                                                        </th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    {% for h in jid|job_host:i.tag %}
+                                                                        <tr class="{% if forloop.counter|divisibleby:2 %}success{% endif %}">
+                                                                            <td>
+                                                                                {{ forloop.counter }}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{ h.hostname }}
+                                                                                <input type="hidden"
+                                                                                       value="{{ h.hostid }}"/>
+                                                                            </td>
+                                                                            <td>
+                                                                                {{ h.ip }}
+                                                                                <input type="hidden"
+                                                                                       value="{{ h.ip }}"/>
+                                                                            </td>
+                                                                            <td>
+                                                                                {{ job.project.host_group.user }}
+                                                                            </td>
+                                                                            <td>
+                                                                                {% if h.status %}启用{% else %}
+                                                                                    禁用{% endif %}
+                                                                            </td>
+                                                                            <td>
+                                                                                <a onclick="viewlog('{{ project.id }}', '{{ project.host_group.user }}', '{{ h.ip }}', '{{ h.id }}');"
+                                                                                   href="javascript:void(0);">查看</a>
+                                                                                <span class="file-tail-{{ h.id }}"
+                                                                                      ondblclick="fileedit(this)">application.log</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                                {% if project.lb_vip %}
+                                                                    <div class="col-md-12 col-sm-12 col-xs-12"
+                                                                         style="margin-bottom: 15px;">
+                                                                        <label class="control-label"
+                                                                               style="float:left;padding-top:6px;">负载均衡权重 </label>
+                                                                        <div class="col-md-2 col-sm-2 col-xs-2 ">
+                                                                            <input name="weight" type="text"
+                                                                                   class="form-control" value=""/>
+                                                                        </div>
+                                                                        <a href="#" onclick="qlb_weight({{ i.tag }});"
+                                                                           class="btn btn-warning btn-sm">提交变更</a>
+                                                                        <div class="qlb-result"></div>
+                                                                    </div>
+                                                                {% endif %}
+                                                                {% if project.lb_nginx.all %}
+                                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                                        <label class="control-label"
+                                                                               style="float:left;padding-top:6px;">Nginx负载均衡 </label>
+                                                                        <span class="col-md-3 col-sm-3 col-xs-12">
+                                                                        <select name="nginx_group"
+                                                                                onchange="nginx_host({{ i.tag }});"
+                                                                                class="nginx_group form-control">
+                                                                            {% for nginx in project.lb_nginx.all %}
+                                                                                <option value="{{ nginx.pk }}">{{ nginx.groupname }}</option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </span>
+                                                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                                                            <a href="#"
+                                                                               onclick="nginx_backend(this, {{ i.tag }}, 'del')"
+                                                                               class="btn btn-warning btn-sm">
+                                                                                摘除后端
+                                                                            </a>
+                                                                            <a href="#"
+                                                                               onclick="nginx_backend(this, {{ i.tag }}, 'add')"
+                                                                               class="btn btn-info btn-sm">
+                                                                                挂载后端
+                                                                            </a></div>
+                                                                        <div class="nginx_host col-md-12 col-sm-12 col-xs-12"
+                                                                             style="padding-left:0;margin-top:15px;"></div>
+                                                                        <div class="nginx-result col-md-12 col-sm-12 col-xs-12"
+                                                                             style="padding-left:0; margin-top:15px;"></div>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+
+
+                                                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                                                <div class="page-header">
+                                                                    <h4 id="pub_text">
+                                                                        发布结果
+                                                                    </h4>
+                                                                    <div id="result_deal">
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="panel-group" id="panel-75693-{{ i.tag }}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-1 col-sm-1 col-xs-1">
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+
+                                </div>
+
+
+                            </div>
+                            <input id="log_id" type="hidden" name="logid" value=""/>
+                        </form>
+
+                        <div id="rst"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- 模态框（Modal） -->
+    <div class="modal fade" id="result-alert" tabindex="-1" role="dialog"
+         aria-labelledby="result-modal" aria-hidden="true">
+        <div class="modal-loading"></div>
+        <div class="modal-dialog" style="width:30%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                        ×
+                    </button>
+                    <h4 class="modal-title" id="modal-label">
+                        提示
+                    </h4>
+                </div>
+                <div id="modal-body" class="modal-body" style="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm"
+                            data-dismiss="modal">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    {#    <script src="/static/js/jquery.dataTables.min.js"></script>#}
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/SmartWizard-master/smartwizard/js/jquery.smartWizard-custom-full.js"></script>
+
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+    <script src="/static/js/json2yaml.js"></script>
+
+
+    <script type="text/javascript">
+        //$(document).ready(function () {
+        // Initialize Smart Wizard with ajax content load
+        //$('#wizard').smartWizard({});
+        //});
+        nginx_host(1);
+
+        $(document).ready(function () {
+
+            {% if not project.status %}
+                show_alert_modal("项目已禁用，禁止操作！");
+                $("#result-alert").modal("show").on('hide.bs.modal', function () {
+                    window.location.href = "{% url 'job_list' %}";
+                });
+            {% endif %}
+
+            // Smart Wizard
+            $('#smartwizard').smartWizard({
+
+                selected: {{ step }},
+                releaseURL: "{% url 'job_exec' pid=pid jid=jid %}",
+                rollbackURL: "{% url 'job_rollback' pid=pid jid=jid %}",
+                finishURL: "{% url 'job_list' %}",
+                lang: {
+                    next: '下一步',
+                    previous: '上一步',
+                    release: '发布',
+                    rollback: '回退'
+                },
+                keyNavigation: false,
+                theme: 'arrows',
+                transitionEffect: 'fade',
+                toolbarSettings: {
+                    toolbarPosition: 'bottom',
+                    toolbarExtraButtons: []//btnFinish, btnCancel]
+                },
+                enableAllSteps: true,
+
+            });
+
+            $("#prev-btn").on("click", function () {
+                // Navigate previous
+                $('#smartwizard').smartWizard("prev");
+                return true;
+            });
+
+            $("#next-btn").on("click", function () {
+                // Navigate next
+                $('#smartwizard').smartWizard("next");
+                return true;
+            });
+
+
+        });
+
+        function qlb_weight(i) {
+            var lip_list = [];
+            $("#step-" + i + " table tbody tr").each(function () {
+                lip_list.push($(this).find('td').eq(1).find('input').val());
+            });
+            var lbid = "{{ project.lb_id }}";
+            var weight = $("#step-" + i + " input[name='weight']").val();
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'qlb_modify' %}",
+                data: {lbid: lbid, bid_list: lip_list, weight: weight},
+                dataType: "json",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    html = '<div class="alert alert-info alert-dismissable" style="margin-top: 15px;">';
+                    if (ret.retcode === 0) {
+                        $("#step-" + i + " .qlb-result").html(html + "修改成功" + "</div>");
+                    } else if (ret.retcode === 2) {
+                        $("#step-" + i + " .qlb-result").html(html + "存在无ID的主机，请检查" + "</div>");
+                    }
+                    else {
+                        $("#step-" + i + " .qlb-result").html(html + "修改失败" + "</div>");
+                    }
+                    $('.qlb-result').fadeIn();
+                    setTimeout("$('.qlb-result').fadeOut()", 10000);
+                }
+            })
+        }
+
+        {#        $("#nginx_group").on("change", function(){#}
+        function nginx_host(i) {
+            $(".nginx_host").empty();
+            var nginx_id = $("#step-" + i + " select[name='nginx_group']").val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'nginx_host' %}",
+                data: {nginx_id: nginx_id},
+                dataType: "json",
+                success: function (ret) {
+                    var html = "";
+                    $.each(ret, function (i, item) {
+                        html = html + '<span class="label label-info" style="display:inline-block;margin-right:5px;">' + item + '</span>';
+                    });
+                    $(".nginx_host").html(html);
+                    $("select[name='nginx_group']").val(nginx_id);
+                    $(".nginx-result").empty();
+                }
+            })
+        }
+
+        function nginx_backend(obj, i, action) {
+            var project = {{ project.pk }};
+            var nginx_group = $("select[name='nginx_group']").val();
+            var lip_list = [];
+            $("#step-" + i + " table tbody tr").each(function () {
+                lip_list.push($(this).find('td').eq(2).find('input').val());
+            });
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'nginx_modify' %}",
+                data: {project: project, nginx_group: nginx_group, bid_list: lip_list, action: action},
+                dataType: "json",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    if (action === 'del') {
+                        tip = '摘除';
+                    } else {
+                        tip = '挂载';
+                    }
+                    var html = '';
+                    var fnum = 1;
+                    if (ret.retcode === 100) {
+                        $('.nginx-result').html('<div class="alert alert-info alert-dismissable" style="margin-top: 10px;">项目已禁用，禁止操作。</div>').css("margin-top", "40px");
+                    } else if (ret.retcode === 101) {
+                        $('.nginx-result').html('<div class="alert alert-info alert-dismissable" style="margin-top: 10px;">无' + tip + 'nginx权限。</div>').css("margin-top", "40px");
+                    } else {
+                        $.each(ret.result, function (i, item) {
+                            var retcode = item['retcode'];
+                            var host = item['host']
+                            if (retcode === 0 && ret === 0) {
+                                var spancss = 'bg-green';
+                                var icss = 'fa-check';
+                                var rst = '成功';
+                            } else if (ret === 99) {
+                                spancss = 'bg-orange';
+                                icss = 'fa-exclamation-triangle';
+                                rst = '失败：配置无任何变更';
+                            } else if (ret === 102) {
+                                spancss = 'bg-red';
+                                icss = 'fa-times';
+                                rst = '失败：配置测试不通过';
+                            } else {
+                                spancss = 'bg-red';
+                                icss = 'fa-times';
+                                rst = '失败：未知异常';
+                            }
+                            html = html + '<div class="panel panel-default"><div class="panel-heading">' +
+                                '<a class="panel-title collapsed" data-toggle="collapse" data-parent=".nginx-result" href="#panel-' + i + '"><div>' + host + '<span class="badge pull-right ' + spancss +
+                                '"><i class="fa ' + icss + '"></i></span></div></a></div>' +
+                                '<div id="panel-' + i + '" class="panel-collapse collapse"><div class="panel-body step' + i +
+                                '"><p>' + tip + '后端' + rst + '，返回信息：<br />' + json2yaml(item) + '</p></div></div></div>';
+                            fnum = fnum + 1;
+                        });
+                        $('.nginx-result').html(html).css('margin-top', '40px');
+                    }
+                    $('.nginx-result').fadeIn();
+                    //setTimeout("$('.nginx-result').fadeOut()", 10000);
+                }
+            })
+        }
+
+        function result_retry(arg) {
+            $("#smartwizard").smartWizard()
+        }
+
+        function result_mark() {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'job_history_detail' %}",
+                data: {arg: arg},
+                dataType: "html",
+                success: function (ret) {
+                    $("#accordion").html(ret);
+                    $("#result-modal-salt").modal("show");
+                }
+            })
+        }
+
+        function show_alert_modal(r) {
+            $("#result-alert .modal-body").html(r);
+            $("button").removeClass("disabled");
+            //$("#job_create button").removeClass("disabled");
+            $("#result-alert").modal({backdrop: 'static', keyboard: false});
+        }
+
+        function fileedit(element) {
+            var file_old = element.innerHTML;
+            var input_obj = document.createElement("input");
+            input_obj.type = "text";
+            input_obj.setAttribute("class", "form-control");
+            input_obj.setAttribute("style", "display:initial;width:50%;");
+            input_obj.setAttribute("onkeydown", "if(event.keyCode==13){event.keyCode=0;event.returnValue=false;}");
+            input_obj.value = file_old;
+            element.innerHTML = "";
+            element.appendChild(input_obj);
+            input_obj.focus();
+            input_obj.onblur = function () {
+                element.innerHTML = this.value ? this.value : file_old;
+            }
+
+        }
+        function viewlog(project_id, project_user, host, host_id) {
+            var filetail = $(".file-tail" + "-" + host_id).html();
+            var uid = "{{ request.user.id }}";
+            var random = "{{ request.COOKIES.sessionid }}";
+            var arr = filetail.split("||");
+            var filename = arr[0];
+            if (arr[1] === undefined) {
+                pat = '';
+            } else {
+                pat = arr[1];
+            }
+            window.open("/logtail/log/?type=remote&log=" + filename + "&hostname=" + host + "&project=" +
+                project_id + "&user=" + project_user + "&pattern=" + pat + "&uid=" + uid + "&random=" + random + "&cmd=soms%20go%20" + host + "%201000%20" + filename);
+        }
+        {#        $("html,body").animate({scrollTop: $("#job-scroll").offset().top}, 100);#}
+    </script>
+
+{% endblock %}
+

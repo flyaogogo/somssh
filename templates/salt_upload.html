@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block css %}
+    {#    <link href="/static/bootstrap-select/css/select2.min.css" rel="stylesheet"/>#}
+    <link href="/static/bootstrap-select/css/bootstrap-multiselect.css" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>文件分发
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="eloading"></div>
+                            <form id="file_form" class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">分发主机 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <select name="host" class="js-basic-multiple select2-single form-control" multiple="multiple"
+                                                style="width:99.9999%">
+                                            {% for h in host_list %}
+                                                <option
+                                                        value="{{ h.ip }}">{{ h.hostname }}-{{ h.ip }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">选择文件 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="file" name="file" multiple />
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">分发路径 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="text" name="path" placeholder="" class="form-control" value="" />
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">返回结果&nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <fieldset disabled>
+                                            <textarea class="form-control" id="result" name="result"
+                                                      rows="10">{{ ret }}</textarea>
+                                        </fieldset>
+                                    </div>
+                                </div>
+
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        <input id="send" type="button" class="btn btn-success" value="提交"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/bootstrap-modal-vertical.js"></script>
+    {#    <script src="/static/bootstrap-select/js/select2.min.js"></script>#}
+    <script src="/static/bootstrap-select/js/bootstrap-multiselect.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+
+        //$('select').select2();
+        $(document).ready(function () {
+
+            $('.js-basic-multiple').multiselect({
+                nonSelectedText: '请选择',
+//                maxHeight : 350,
+                        includeSelectAllOption: true,
+                        enableFiltering: true,
+                        filterPlaceholder: '搜索',
+                        nSelectedText: '项被选中',
+                        selectAllText: '全选/取消全选',
+                        allSelectedText: '已选中所有',
+                        buttonWidth: "100%",
+                        numberDisplayed: 5
+            });
+            {#            $('.js-basic-multiple').multiselect({#}
+            {#                enableFiltering: true,#}
+            {#                includeSelectAllOption: true,#}
+            {#            });#}
+            {#            $('.js-basic-single').select2({#}
+            {#                width: 'resolve'#}
+            {#            });#}
+            {#            $('.js-basic-multiple').select2({#}
+            {#                width: 'resolve'#}
+            {#            });#}
+            {#    $('js-basic-multiple').select2({#}
+            {#        width: 'resolve'#}
+            {#    });#}
+        });
+
+        function ajax_host() {
+            var project = $("select[name='project'").val();
+            var ptype = $("select[name='project']").find("option:selected").attr("name");
+            if (ptype == 1) {
+                var html = '<label class="control-label col-md-3 col-sm-3 col-xs-12">发布路径 <span class="required">*</span></label>' +
+                    '<div class="col-md-6 col-sm-6 col-xs-12"><input type="text" name="path" placeholder="plugins/lib" class="form-control" value="" /></div>';
+                $("#path").html(html);
+            } else {
+                $("#path").html("");
+            }
+            $.ajax({
+                type: "POST",
+                url: "{% url 'ajax_host_upload' %}",
+                data: {project: project},
+                dataType: "json",
+                success: function (ret) {
+//                    var ret = JSON.parse(ret);
+                    var html = '';
+                    //var obj = document.getElementById('id_project_host');
+                    var obj = $("#id_project_host");
+                    obj.empty();
+                    $.each(ret, function (key, value) {
+                        obj.append($("<option></option>").val(key).html(value));
+                    });
+                    /*obj.multiselect('rebuild').multiselect({
+                     nonSelectedText : '--请选择--',
+                     //maxHeight : 350,
+                     includeSelectAllOption : true,
+                     numberDisplayed : 5
+
+                     });
+                     */
+//                      obj.children().remove();
+                    obj.multiselect("destroy").multiselect({
+                        // 自定义参数，按自己需求定义
+                        nonSelectedText: '请选择',
+//                maxHeight : 350,
+                        includeSelectAllOption: true,
+                        enableFiltering: true,
+                        filterPlaceholder: '搜索',
+                        nSelectedText: '项被选中',
+                        selectAllText: '全选/取消全选',
+                        allSelectedText: '已选中所有',
+                        buttonWidth: "100%",
+                        numberDisplayed: 5
+                    });
+
+                    //var user_select = $("select[name='hostuser']").val();
+                    //$("#id_user").val(user_select);
+                },
+                error: function (error) {
+                    alert("获取主机出错");
+                    console.log(error);
+                }
+            })
+        }
+
+
+        $(function () {
+            $("select[name='project'").bind("change", function () {
+                ajax_host();
+            })
+
+        })
+
+        $("#send").click(function () {
+            var objButton = $(this);
+            $("#result").html("");
+            var formobj = document.getElementById("file_form");
+            var formdata = new FormData(formobj);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'salt_file_upload' %}",
+                data: formdata,
+                //async: false,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                beforeSend: function () {//触发ajax请求开始时执行
+                    objButton.val('发布中').attr('disabled', true);//改变提交按钮上的文字并将按钮设置为不可点击
+                    $(".eloading").show();
+                },
+                success: function (ret) {
+                    //var ret = JSON.parse(ret);
+                    var html = "";
+                    $.each(ret, function (i, item) {
+                                var r = item['retcode'];
+                                if (r != 0) {
+                                    mycss = 'return_err';
+                                }
+                                html = html + "\nHost: " + i + "\nRetcode: " + item['retcode'] + "\nStderr: \n" + item['stderr'] + "\nStdout: \n" + item['stdout'] + "\n";
+
+                            });
+                    $("#result").val(html);
+                },
+                error: function () {//ajax发生错误时执行
+                    alert('发布出错！');
+                },
+                complete: function () {//ajax请求完成时执行
+                    objButton.val('发布').attr('disabled', false);//改变提交按钮上的文字并将按钮设置为可以点击
+                    $(".eloading").hide();
+                }
+            })
+        })
+    </script>
+{% endblock %}
+

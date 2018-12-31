@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% load myuserauth %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>腾讯云{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'qlb_list' %}">腾讯云负载均衡</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="eloading"></div>
+                            <form class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="item form-group">
+                                    <!-- start project-detail sidebar -->
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+
+                                        <section class="panel">
+
+                                            <div class="x_title">
+                                                <h2>项目：{{ project.name }}</h2>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="panel-body">
+                                                {#                          <h4 class="green"><i class="fa fa-paint-brush"></i>项目</h4>#}
+                                                {#                          <p>{{ project.name }}</p>#}
+                                                <div class="project_detail">
+                                                    <p class="title">腾讯云VIP</p>
+                                                    <p>{{ project.lb_vip }}<br/></p>
+                                                    <p class="title">后端端口</p>
+                                                    <p>{{ project.port }}</p>
+                                                </div>
+                                            </div>
+
+                                        </section>
+
+                                    </div>
+                                    <!-- end project-detail sidebar -->
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>后端主机</h4></div>
+                                        <select name="from[]" id="search1" class="form-control" size="8"
+                                                multiple="multiple">
+                                            {% for h in host_list %}
+                                                <option value="{{ h.ip }}">{{ h.hostname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-xs-2" style="padding-top:60px;">
+                                        <button type="button" id="search1_rightAll" class="btn btn-block"><i
+                                                class="fa fa-forward"></i></button>
+                                        <button type="button" id="search1_rightSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-right"></i></button>
+                                        <button type="button" id="search1_leftSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-left"></i></button>
+                                        <button type="button" id="search1_leftAll" class="btn btn-block"><i
+                                                class="fa fa-backward"></i></button>
+                                    </div>
+
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>已选主机</h4></div>
+                                        <select id="search1_to" name="hosts" class="form-control" size="8"
+                                                multiple="multiple">
+
+                                        </select>
+                                    </div>
+                                </div>
+                            <div class="item form-group">
+                                <div class="col-xs-12">
+                            <div><h4>后端权重</h4></div>
+                                </div>
+                                                                        <div class="col-md-5 col-sm-5 col-xs-5 ">
+                                                                            <input name="weight" type="text"
+                                                                                   class="form-control" value=""/>
+                                                                        </div>
+                            </div>
+                                <div class="ln_solid"></div>
+                                <div class="qlb-result"></div>
+                                <div class="form-group">
+                                    <div>
+                                        <a href="#" onclick="qlb_weight(this);"
+                                                                           class="btn btn-warning btn-sm">提交变更</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- validator -->
+    <script type="text/javascript" src="/static/js/validator.min.js"></script>
+    <script type="text/javascript" src="/static/js/multiselect.min.js"></script>
+    <script type="text/javascript" src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('#search1').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+
+        });
+
+        function qlb_weight(obj) {
+            lip_list = $("select[name='hosts'] option").map(function () {
+                return $(this).val();
+            }).get().join(',');
+            if (lip_list.length === 0) {
+                alert("请选择后端主机.");
+                return false;
+            }
+            $(obj).addClass("disabled");
+            var lbid = "{{ project.lb_id }}";
+            var weight = $("input[name='weight']").val();
+            //console.log(lip_list);
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'qlb_modify' %}",
+                data: {lbid: lbid, "bid_list[]": lip_list, weight: weight},
+                dataType: "json",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    html = '<div class="alert alert-info alert-dismissable" style="margin-top: 15px;">';
+                    if (ret.retcode === 0) {
+                        $(".qlb-result").html(html + "修改成功" + "</div>");
+                    } else if (ret.retcode === 2) {
+                        $(".qlb-result").html(html + "存在无ID的主机，请检查" + "</div>");
+                    }
+                    else {
+                        $(".qlb-result").html(html + "修改失败" + "</div>");
+                    }
+                    $('.qlb-result').fadeIn();
+                    $(obj).removeClass("disabled");
+                }
+            })
+        }
+    </script>
+
+
+{% endblock %}

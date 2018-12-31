@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% block css %}
+    <link href="/static/bootstrap-select/css/bootstrap-multiselect.css" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'pcloud_list' %}">项目列表</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="eloading"></div>
+                            <form id="project_form" class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">发布项目 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <select name="project" class="js-basic-single select2-single form-control"
+                                                style="width:99.9999%">
+                                            {% for p in project_list %}
+                                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">发布主机 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <select name="project_host" id="id_project_host"
+                                                class="js-basic-multiple js-states form-control" multiple="multiple"
+                                                style="width:99.9999%;">
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">历史版本 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="btn-group col-md-6 col-sm-6 col-xs-12" data-toggle="buttons">
+
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">是否重启 <span
+                                            class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="radio" name="action" value="0" checked/> 不重启 &nbsp;
+                                        <input type="radio" name="action" value="1"/> 重启<br/>
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12">返回结果&nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <fieldset disabled>
+                                            <textarea class="form-control" id="result" name="result"
+                                                      rows="10">{{ ret }}</textarea>
+                                        </fieldset>
+                                    </div>
+                                </div>
+
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        <input id="send" type="button" class="btn btn-success" value="发布"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/bootstrap-modal-vertical.js"></script>
+    <script src="/static/bootstrap-select/js/bootstrap-multiselect.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+
+        //$('select').select2();
+        $(document).ready(function () {
+            ajax_host();
+            $('.js-basic-single').multiselect({
+                nonSelectedText: '请选择',
+                enableFiltering: true,
+                filterPlaceholder: '搜索',
+                buttonWidth: "100%"
+            });
+            path("路径版本", "路径|新版本号|旧版本号 eg: WEB-INF/lib|1.1|1.0");
+            file('');
+        });
+
+        function file(arg) {
+            var html = '<label class="control-label col-md-3 col-sm-3 col-xs-12">文件上传 <span class="required">*</span></label>' +
+                '<div class="col-md-6 col-sm-6 col-xs-12"><input type="file" name="file" ' + arg + ' /></div>';
+            $("#file").html(html);
+        }
+
+        function path(arg, arg2) {
+            var html = '<label class="control-label col-md-3 col-sm-3 col-xs-12">' + arg + ' <span class="required">*</span></label>' +
+                '<div class="col-md-6 col-sm-6 col-xs-12"><input type="text" name="path" placeholder="' + arg2 + '" class="form-control" value="" /></div>';
+            $("#path").html(html);
+        }
+
+        function config() {
+            var html = '<label class="control-label col-md-3 col-sm-3 col-xs-12">配置变更 <span class="required">*</span></label>' +
+                '<div class="col-md-6 col-sm-6 col-xs-12"><div class="col-md-9 col-sm-9 col-xs-12"><input type="text" name="path" placeholder="hessian.mytest=http://1.1.1.1"' +
+                ' class="form-control" value="" /></div><a onclick="get_config();" id="get_config" type="button" class="col-md-2 col-sm-2 col-xs-12 btn btn-default">获取配置</a>' +
+                            '<a onclick="lock(this);" state="0" id="lock" type="button" class="btn btn-default">解锁</a><div id="div_hidden" class="hidden">' +
+                            '<textarea id="config_content" name="config_content" class="form-control" readonly style="margin-top:10px;"></textarea></div></div>';
+            $("#path").html(html);
+        }
+
+
+        function lock(obj) {
+            var newstate = $(obj).attr('state') ^ 1, text = newstate ? "锁定" : "解锁";
+            if (newstate == 1) {
+                $("#config_content").removeAttr("readonly");
+            } else {
+                $("#config_content").attr("readonly", "true");
+            }
+            $(obj).html(text);
+            $(obj).attr('state', newstate);
+        }
+
+        function get_config() {
+            var fname = $("input[name='path']").val();
+            var project = $("select[name='project']").val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'get_config' %}",
+                //data:$("#project_form").serialize(),
+                data: {project: project, fname: fname},
+                //async: false,
+                dataType: "html",
+                success: function (ret) {
+                    // var ret = JSON.parse(ret);
+                    var html = "";
+                    $("#div_hidden").attr("class", "");
+                    $("#config_content").val(ret);
+                    $("#config_content").attr("rows", "15");
+                },
+                error: function () {//ajax发生错误时执行
+                    alert('获取出错！');
+                }
+            })
+
+        }
+
+        $("#normal").bind("click", function () {
+            $("input[name='ptype']").val("1");
+            file('multiple');
+            path("发布路径", "WEB-INF/classes");
+        })
+
+        $("#jar").bind("click", function () {
+            $("input[name='ptype']").val("0");
+            path("路径版本", "路径|新版本号|旧版本号 eg: WEB-INF/lib|1.1|1.0");
+            file('');
+        })
+
+        $("#config").bind("click", function () {
+            $("input[name='ptype']").val("2");
+            $("#file").html("");
+            config();
+        })
+
+        function ajax_host() {
+            var project = $("select[name='project'").val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'ajax_host' %}",
+                data: {project: project},
+                dataType: "json",
+                success: function (ret) {
+                    var html = '';
+                    var obj = $("#id_project_host");
+                    obj.empty();
+                    $.each(ret, function (key, value) {
+                        obj.append($("<option></option>").val(key).html(value));
+                    });
+                    obj.multiselect("destroy").multiselect({
+                        // 自定义参数，按自己需求定义
+                        nonSelectedText: '请选择',
+//                maxHeight : 350,
+                        includeSelectAllOption: true,
+                        enableFiltering: true,
+                        filterPlaceholder: '搜索',
+                        nSelectedText: '项被选中',
+                        selectAllText: '全选/取消全选',
+                        allSelectedText: '已选中所有',
+                        buttonWidth: "100%",
+                        numberDisplayed: 5
+                    });
+                },
+                error: function (error) {
+                    alert("获取主机出错");
+                    console.log(error);
+                }
+            })
+        }
+
+
+        $(function () {
+            $("select[name='project'").bind("change", function () {
+                ajax_host();
+            })
+
+        })
+
+        $("#send").click(function () {
+            //file = $("#file input[name='file']")[0].files[0];
+            var objButton = $(this);
+            $("#result").html("");
+            var formobj = document.getElementById("project_form");
+            var formdata = new FormData(formobj);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'project_release_increase' %}",
+                //data:$("#project_form").serialize(),
+                data: formdata,
+                //async: false,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                beforeSend: function () {//触发ajax请求开始时执行
+                    objButton.val('发布中').attr('disabled', true);//改变提交按钮上的文字并将按钮设置为不可点击
+                    $(".eloading").show();
+                },
+                success: function (ret) {
+                    var html = "";
+                    $.each(ret, function (i, item) {
+                        var cont = "";
+                        html = html + "Project: " + item['project_name'] + "\nHost: " + item['id'] + "\nRetCode: " + item['retcode'] + "\nReturn: \n";
+                        $.each(item['return'], function (k, v) {
+                            cont = cont + "\nFunc: " + k + "\nComment: " + v['comment'] + "\nName: " + v['name'] + "\nResult: " + v['result'] + "\nChanges: " + v['changes'];
+                        });
+                        html = html + cont;
+                    });
+                    $("#result").val(html);
+                },
+                error: function () {//ajax发生错误时执行
+                    alert('发布出错！');
+                },
+                complete: function () {//ajax请求完成时执行
+                    objButton.val('发布').attr('disabled', false);//改变提交按钮上的文字并将按钮设置为可以点击
+                    $(".eloading").hide();
+                }
+            })
+        })
+    </script>
+{% endblock %}
+

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/codemirror.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/mergely.css" rel="stylesheet">
+    <link href="/static/bootstrap-select/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+{% block content %}
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>{{ project.name }} {{ page_name }}回滚｜<small><a href="{% url 'job_index' %}">发布任务</a></small> </h2>
+                        <input type="hidden" name="project_id" value="{{ project_id }}"/>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Settings 1</a>
+                                </li>
+                                <li><a href="#">Settings 2</a>
+                                </li>
+                            </ul>
+                            </li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="row clearfix">
+            <label class="control-label col-md-12 col-sm-12 col-xs-12">配置文件</label>
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <select name="config" class="js-basic-multiple js-states form-control">
+                {% for c in config_list %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+                </select>
+{#                <input type="text" name="config" class="form-control" placeholder="application.conf" value/>#}
+            </div>
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <select id="config_ver" name="config_ver" class="js-basic-multiple2 js-states form-control">
+                </select>
+            </div>
+            <div id="config_tips"></div>
+        </div>
+        <span id="create_config" class="control-label col-md-12 col-sm-12 col-xs-12"
+              style="padding-left:0;margin-top:15px;"></span>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+
+            <div id="icontent" class="row clearfix hidden">
+                {#                    <label class="control-label col-md-12 col-sm-12 col-xs-12" style="padding-left:0;margin-top:15px;">文件内容</label>#}
+                <div class="control-label col-md-12 col-sm-12 col-xs-12" style="padding-left:0;margin-top:15px;">
+                    <a href="#" onclick="show_help();"><span style="font-size: 16px;"><i
+                            class="fa fa-question"></i> </span></a>
+                    {% for region in all_regions %}
+                        <span class="label label-info">{{ region.name }} - {{ region.region }}</span>
+                    {% endfor %}
+                </div>
+
+                <div id="id-content" class="control-label col-md-12 col-sm-12 col-xs-12" style="padding-left:0;margin-top:15px;">
+                <button id="testi" onclick="btn_toggle(this);" style="border: none; float:left;width:8px;font-size:6px;height:700px;padding-left:1px;" state="1"><i class="fa fa-angle-double-left"></i> </button>
+
+                </div></div>
+        </div>
+
+        <div class="row clearfix"></div>
+        <div class="x_title page-header">
+            <h1>
+                选择发布主机
+                <small>项目：{{ project.name }}</small>
+            </h1>
+        </div>
+        <div class="ajax-loading"></div>
+
+        <form id="job_config" method="post" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left:0;">
+                <div class="row clearfix">
+                    <div class="col-sm-5">
+                        <select name="from[]" id="search1" class="form-control" size="8" multiple="multiple">
+                            {% for host in all_hosts %}
+                                <option value="{{ host.ip }}">{{ host.hostname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <button type="button" id="search1_rightAll" class="btn btn-block"><i
+                                class="fa fa-forward"></i></button>
+                        <button type="button" id="search1_rightSelected" class="btn btn-block"><i
+                                class="fa fa-chevron-right"></i></button>
+                        <button type="button" id="search1_leftSelected" class="btn btn-block"><i
+                                class="fa fa-chevron-left"></i></button>
+                        <button type="button" id="search1_leftAll" class="btn btn-block"><i
+                                class="fa fa-backward"></i></button>
+                    </div>
+
+                    <div class="col-sm-5">
+                        <select name="to1[]" id="search1_to" class="form-control" size="8" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <button id="rollback_config" name="rollback_config" class="btn btn-info btn-sm"
+                onclick="rollback_config('{% url 'project_config' pid=pid %}');" style="margin-top:15px;">配置回滚
+        </button>
+
+                <!-- 模态框（Modal） -->
+    <div class="modal fade" id="result-modal-salt" tabindex="-1" role="dialog"
+         aria-labelledby="result-modal" aria-hidden="true">
+        <div class="modal-loading"></div>
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
+                    </button>
+                    <b class="modal-title" id="result-modal">详细信息</b>
+                </div>
+                <div id="modal-body" class="modal-body" style="">
+
+                </div>
+                <!--<div class="modal-footer">
+
+                </div>-->
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+                <input id="config_old" type="hidden" value=""/>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/codemirror.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/mergely.min.js"></script>
+
+    <script>
+        get_history();
+        $('.js-basic-multiple').select2();
+        $('.js-basic-multiple2').select2();
+
+        $('#search1').multiselect({
+            search: {
+                left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            },
+            fireSearch: function (value) {
+                return value.length > 0;
+            }
+        });
+
+        function get_history() {
+            var config = $("select[name='config']").val();
+            $.ajax({
+                type: "GET",
+                url: "{% url 'ajax_config' %}",
+                data: {filename: config, project: {{ pid }}},
+                dataType: "json",
+                success: function (ret) {
+                    var obj = document.getElementById('config_ver');
+                    obj.options.length = 0;
+                    for (i in ret) {
+                        obj.options.add(new Option(ret[i].version, ret[i].version));
+                        if(ret[i].tips !== 'null'){
+                            $("#config_tips").html(ret[i].tips);
+                        }
+                    }
+                }
+            })
+        }
+
+        $("select[name='config']").bind("change", function () {
+            get_history();
+        });
+
+
+        function show_help() {
+            var html = '<h3>左侧为原始内容不可编辑，右侧为可编辑区域</h3><img src="/static/img/help/config_diff.png" style="width: 100%;">';
+            $("#modal-body").html(html);
+            $("#result-modal-salt").modal("show");
+        }
+
+        function rollback_config(url) {
+            $(".ajax-loading").show();
+            var hosts = $("#search1_to option").map(function () {
+                return $(this).val();
+            }).get().join(",");
+            config = $("select[name='config']").val();
+            config_ver = $("select[name='config_ver']").val();
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {action: 'rollback', hosts: hosts, config: config, config_ver: config_ver},
+                dataType: "json",
+                success: function (ret) {
+                    $(".ajax-loading").hide();
+                    var html = '';
+                    var fnum = 1;
+                    $.each(ret, function (i, item) {
+                        var r = item['retcode'];
+                        if (r !== 0) {
+                            var spancss = 'bg-red';
+                            var icss = 'fa-times';
+                        } else {
+                            var spancss = 'bg-green';
+                            var icss = 'fa-check';
+                        }
+                        html = html + '<div class="panel-group" id="panel-75693-' + fnum + '"><div class="panel panel-default"><div class="panel-heading">' +
+                            '<a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-75693-' + fnum +
+                            '" href="#panel-' + fnum + '">' + i + '<span class="badge pull-right ' + spancss +
+                            '"><i class="fa ' + icss + '"></i></span></a></div>' +
+                            '<div id="panel-' + fnum + '" class="panel-collapse collapse"><div class="panel-body step' + fnum +
+                            '"><p>Retcode: ' + item['retcode'] + '<br />Comment: ' +
+                            item['comment'] + '<br />Diff: <br />' + item['diff'] + '<br /></p></div></div></div></div>';
+                        fnum = fnum + 1;
+                    })
+                    $("#modal-body").html(html);
+                    $("#result-modal-salt").modal("show");
+                }
+            })
+        }
+    </script>
+{% endblock %}

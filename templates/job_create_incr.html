@@ -1,0 +1,300 @@
+{% extends 'job_base.html' %}
+{% load myinclusion %}
+
+{% block css %}
+    {#    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">#}
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard_theme_arrows.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/static/select2/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+
+{% endblock %}
+{% block content %}
+
+
+    <div class="container">
+        <form id="job_create" method="post"
+              {% ifequal action 'add' %}action="{% url 'job_create' pid=pid action='add' %}" {% endifequal %}
+                {% ifequal action 'edit' %} action="{% url 'job_edit' pid=pid jid=jid action=action %}"{% endifequal %}
+              enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- SmartWizard html -->
+            <div id="smartwizard">
+                <ul>
+                    <li><a href="#step-1">Step 1<br/>
+                        <small>This is tab's description</small>
+                    </a></li>
+                    <li><a href="#step-2">Step 2<br/>
+                        <small>This is tab's description</small>
+                    </a></li>
+                    <li><a href="#step-3">Step 3<br/>
+                        <small>This is tab's description</small>
+                    </a></li>
+                    <li><a href="#step-4">Step 4<br/>
+                        <small>This is tab's description</small>
+                    </a></li>
+                    <li><a href="#step-5">Step 5<br/>
+                        <small>This is tab's description</small>
+                    </a></li>
+                </ul>
+
+                <div>
+                    <div id="step-1" class="">
+                        <div class="row step-css">
+                            <div class="item form-group step-item">
+                                <label class="control-label col-md-12 col-sm-12 col-xs-12">版本发布 <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+                                    <input class="form-control" name="version"/>
+                                </div>
+                            </div>
+                            <div class="item form-group step-item">
+                                <label class="control-label col-md-12 col-sm-12 col-xs-12">版本说明
+                                </label>
+                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+                                    <textarea class="form-control" name="version_tips">{% if job.remark %}
+                                        {{ job.remark }}{% endif %}</textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="step-2" class="">
+                        <div class="row step-css">
+                            <div class="col-sm-5">
+                                <select name="from[]" id="search1" class="form-control" size="8" multiple="multiple">
+                                    {% for h in hosts %}
+                                        <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button type="button" id="search1_rightAll" class="btn btn-block"><i
+                                        class="fa fa-forward"></i></button>
+                                <button type="button" id="search1_rightSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-right"></i></button>
+                                <button type="button" id="search1_leftSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-left"></i></button>
+                                <button type="button" id="search1_leftAll" class="btn btn-block"><i
+                                        class="fa fa-backward"></i></button>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <select name="to1[]" id="search1_to" class="form-control" size="8" multiple="multiple">
+                                    {% for h in jid|job_host:"1" %}
+                                        <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step-3" class="">
+                        <div class="row step-css">
+                            <div class="col-sm-5">
+                                <select name="from[]" id="search2" class="form-control" size="8" multiple="multiple">
+
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button type="button" id="search2_rightAll" class="btn btn-block"><i
+                                        class="fa fa-forward"></i></button>
+                                <button type="button" id="search2_rightSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-right"></i></button>
+                                <button type="button" id="search2_leftSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-left"></i></button>
+                                <button type="button" id="search2_leftAll" class="btn btn-block"><i
+                                        class="fa fa-backward"></i></button>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <select name="to2[]" id="search2_to" class="form-control" size="8" multiple="multiple">
+                                    {% for h in jid|job_host:"2" %}
+                                        <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step-4" class="">
+                        <div class="row step-css">
+                            <div class="col-sm-5">
+                                <select name="from[]" id="search3" class="form-control" size="8" multiple="multiple">
+
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button type="button" id="search3_rightAll" class="btn btn-block"><i
+                                        class="fa fa-forward"></i></button>
+                                <button type="button" id="search3_rightSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-right"></i></button>
+                                <button type="button" id="search3_leftSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-left"></i></button>
+                                <button type="button" id="search3_leftAll" class="btn btn-block"><i
+                                        class="fa fa-backward"></i></button>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <select name="to3[]" id="search3_to" class="form-control" size="8" multiple="multiple">
+                                    {% for h in jid|job_host:"3" %}
+                                        <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step-5" class="">
+                        <div class="row step-css">
+                            <div class="col-sm-5">
+                                <select name="from[]" id="search4" class="form-control" size="8" multiple="multiple">
+
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button type="button" id="search4_rightAll" class="btn btn-block"><i
+                                        class="fa fa-forward"></i></button>
+                                <button type="button" id="search4_rightSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-right"></i></button>
+                                <button type="button" id="search4_leftSelected" class="btn btn-block"><i
+                                        class="fa fa-chevron-left"></i></button>
+                                <button type="button" id="search4_leftAll" class="btn btn-block"><i
+                                        class="fa fa-backward"></i></button>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <select name="to4[]" id="search4_to" class="form-control" size="8" multiple="multiple">
+                                    {% for h in jid|job_host:"4" %}
+                                        <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+
+
+{% endblock %}
+{% block js %}
+    {#    <script src="/static/js/jquery.dataTables.min.js"></script>#}
+    <script src="/static/js/csrf.js"></script>
+    {#    <script src="/static/js/dataTables.bootstrap.min.js"></script>#}
+    <script src="/static/jQuery-Smart-Wizard/js/jquery.smartWizard.js"></script>
+    <script src="/static/SmartWizard-master/smartwizard/js/jquery.smartWizard.min.js"></script>
+
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+
+
+    <script type="text/javascript">
+        //$(document).ready(function () {
+        // Initialize Smart Wizard with ajax content load
+        //$('#wizard').smartWizard({});
+        //});
+        $(document).ready(function () {
+
+            $(".js-basic-single").select2({
+                placeholder: '请选择要发布的版本',
+                width: 'resolve'
+            }).val("{{ job.version }}").trigger("change");
+
+
+            $('#search1').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+            $('#search2').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+            $('#search3').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+            $('#search4').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+
+            // Toolbar extra buttons
+            var btnFinish = $('<button></button>').text('Finish')
+                .addClass('btn btn-info')
+                .on('click', function () {
+                    alert('Finish Clicked');
+                });
+            var btnCancel = $('<button></button>').text('Cancel')
+                .addClass('btn btn-danger')
+                .on('click', function () {
+                    $('#smartwizard').smartWizard("reset");
+                });
+
+            // Smart Wizard
+            $('#smartwizard').smartWizard({
+                {% if pid %}
+                    selected: 0,
+                {% else %}
+                    selected: 0,
+                {% endif %}
+                theme: 'arrows',
+                transitionEffect: 'fade',
+                toolbarSettings: {
+                    toolbarPosition: 'bottom',
+                    toolbarExtraButtons: [btnFinish, btnCancel]
+                }
+            });
+
+
+            // Initialize the leaveStep event
+            $("#smartwizard").on("leaveStep", function (e, anchorObject, stepNumber, stepDirection) {
+                //var step_1 = new Array();
+                if (stepNumber !== 0) {
+                    //alert(stepNumber);
+                    if (stepDirection === 'forward') {
+                        var a = 2, b = 1;
+                    } else {
+                        var a = 0, b = 1;
+                    }
+                    var obj = $("#step-" + (stepNumber + a) + " select[name='from[]']");
+                    obj.empty();
+                    $("#step-" + (stepNumber + b) + " select[name='from[]'] option").each(function () {
+                        var v = $(this).val();
+                        var t = $(this).text();
+                        obj.append($("<option></option>").val(v).text(t));
+                    });
+                }
+
+            });
+        });
+    </script>
+
+{% endblock %}
+

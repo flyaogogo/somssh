@@ -1,0 +1,90 @@
+{% extends 'job_base.html' %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/codemirror.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/mergely.css" rel="stylesheet">
+    <link href="/static/bootstrap-select/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title page-header">
+                <h1>
+                    配置文件查看
+                    <small>项目：{{ project.name }}</small>
+                </h1>
+            </div>
+            <input type="hidden" name="project_id" value="{{ project_id }}"/>
+        </div>
+    <form class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+        <div class="item form-group">
+            <label class="col-md-12 col-sm-12 col-xs-12">选择配置</label>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <select name="config" class="js-basic-single js-states form-control">
+                {% for c in config_list %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+                </select>
+{#                <input type="text" name="config" class="form-control" placeholder="application.conf" value/>#}
+            </div>
+        </div>
+            <div class="item form-group">
+            <label class="col-md-12 col-sm-12 col-xs-12">选择主机</label>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                <select name="host" class="js-basic-single js-states form-control">
+                {% for host in all_hosts %}
+                <option value="{{ host.ip }}">{{ host.hostname }}-{{ host.ip }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            </div>
+    <div class="item form-group">
+        <div id="content_config" class="col-md-12 col-sm-12 col-xs-12">
+
+        </div></div>
+            <div class="item form-group">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+                <button name="get_config" class="btn btn-info btn-sm"
+                        onclick="get_config_single('{% url 'project_config_check' pid=pid %}');">获取配置
+                </button>
+            </div>
+            </div>
+    </form>
+
+
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/codemirror.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/mergely.min.js"></script>
+
+    <script>
+
+        function get_config_single(url) {
+            var config = $("select[name='config']").val();
+            var host = $("select[name='host']").val();
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {filename: config, host: host, project: {{ pid }}},
+                dataType: "html",
+                success: function (ret) {
+                    $("#content_config").html(ret);
+                }
+            })
+        }
+    </script>
+{% endblock %}

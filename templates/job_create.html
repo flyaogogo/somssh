@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% block css %}
+    {#    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">#}
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/SmartWizard-master/smartwizard/css/smart_wizard_theme_dots.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/static/select2/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+
+{% endblock %}
+{% block content %}
+
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+
+
+                            <div id="floatTools" class="rides-cs" style="height:128px;">
+                                <div class="floatL">
+                                    <a style="display:block" id="aFloatTools_Show" class="btnOpen" title="定义发布批次"
+                                       href="javascript:void(0);">批次定义<<</a>
+                                    <a style="display:none" id="aFloatTools_Hide" class="btnCtn" title="定义发布批次"
+                                       href="javascript:void(0);">批次定义>></a>
+                                </div>
+                                <div id="divFloatToolsView" class="floatR"
+                                     style="display: none;height: 128px;width: auto;">
+                                    <div class="cn">
+                                        <h3 class="titZx">发布批次定义</h3>
+                                        <form id="job_batchs" method="get"
+                                              action="{% url 'job_create' pid=pid action='add' %}">
+                                            <select class="form-control" onchange="submit();" name="batch_num">
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                {#                                                        <option value="10">9</option>#}
+                                            </select>
+                                            {#    <button type="submit">提交</button>#}
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <h2>{{ project.name }}｜
+                                <small><!--<a href="#" onclick="step_add(this);" name="5">新增发布批次</a> |-->
+                                    <a href="{% url 'job_index' %}">发布任务</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+
+
+                        <form id="job_create" method="post" data-toggle="validator"
+                              {% ifequal action 'add' %}action="{% url 'job_create' pid=pid action='add' %}" {% endifequal %}
+                                {% ifequal action 'edit' %}
+                              action="{% url 'job_edit' pid=pid jid=jid action=action %}"{% endifequal %}
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- SmartWizard html -->
+                            <div id="smartwizard">
+                                <ul>
+                                    <li><a href="#step-1">发布信息<br/>
+                                        <small>项目<b>{{ project.name }}</b></small>
+                                    </a></li>
+                                    {% for i in batchs %}
+                                        <li><a href="#step-{{ i|add:1 }}">发布批次 {{ i }}<br/>
+                                            <small>选择发布{{ i }}主机</small>
+                                        </a></li>
+                                    {% endfor %}
+
+                                </ul>
+
+                                <div class="step-body">
+                                    <div id="step-1" class="">
+                                        <div class="row step-css">
+                                            <div class="item form-group step-item">
+                                                <label class="control-label col-md-12 col-sm-12 col-xs-12">发布类型
+                                                    <span>*</span>
+                                                </label>
+                                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+
+                                                    <div class="btn-group col-md-6 col-sm-6 col-xs-12"
+                                                         data-toggle="buttons"
+                                                         style="padding-left:0;">
+                                                        <label id="full" class="btn btn-default active">
+                                                            <input type="radio" name="ptype" checked value="0"> 全量发布
+                                                        </label>
+                                                        <label id="increase" class="btn btn-default">
+                                                            <input type="radio" name="ptype"> 增量发布
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="item form-group step-item">
+                                                <label class="control-label col-md-12 col-sm-12 col-xs-12">文件来源
+                                                    <span>*</span>
+                                                </label>
+                                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+                                                    <div class="btn-group col-md-6 col-sm-6 col-xs-12"
+                                                         data-toggle="buttons"
+                                                         style="padding-left:0;">
+                                                        <label id="svn" class="btn btn-default active">
+                                                            <input type="radio" name="source" checked value="0"> SVN
+                                                        </label>
+                                                        <label id="local" class="btn btn-default">
+                                                            <input type="radio" name="source"> 本地上传
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="file" class="item form-group step-item">
+                                            </div>
+                                            <div id="version" class="item form-group step-item">
+                                                <label class="control-label col-md-12 col-sm-12 col-xs-12">{{ form.version.label_tag }}
+                                                    <small>(填写相应的版本号，具体连接svn查看)</small>
+                                                    <span
+                                                            class="required">*</span>
+                                                </label>
+                                                <div class="col-md-8 col-sm-8 col-xs-12">
+
+                                                    <div class="step-label" id="form-step-0" role="form"
+                                                         data-toggle="validator">
+                                                        <div class="form-group">
+                                                            {{ form.version }}
+                                                            {{ form.version.error_messages }}
+                                                            <div class="help-block with-errors"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="path" class="item form-group step-item"></div>
+
+                                            <div class="item form-group step-item">
+                                                <label class="control-label col-md-12 col-sm-12 col-xs-12">{{ form.version_tips.label_tag }}
+                                                </label>
+                                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+                                                    {{ form.version_tips }}
+                                                    {{ form.version.error_messages }}
+                                                </div>
+                                            </div>
+
+                                            <div id="reload" class="item form-group step-item">
+                                                <label class="control-label col-md-12 col-sm-12 col-xs-12">{{ form.action.label_tag }}
+                                                </label>
+                                                <div class="step-label col-md-8 col-sm-8 col-xs-12">
+                                                    {{ form.action }}
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    {% for i in batchs %}
+                                        <div id="step-{{ i|add:1 }}" class="">
+                                            <div class="row step-css">
+                                                <div class="col-sm-5 col-xs-5">
+                                                    <select name="from[]" id="search{{ i }}" class="form-control"
+                                                            size="8"
+                                                            multiple="multiple">
+                                                        {% for h in hosts %}
+                                                            <option value="{{ h.id }}">{{ h.hostname }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-2 col-xs-2">
+                                                    <button type="button" id="search{{ i }}_rightAll"
+                                                            class="btn btn-block"><i
+                                                            class="fa fa-forward"></i></button>
+                                                    <button type="button" id="search{{ i }}_rightSelected"
+                                                            class="btn btn-block">
+                                                        <i
+                                                                class="fa fa-chevron-right"></i></button>
+                                                    <button type="button" id="search{{ i }}_leftSelected"
+                                                            class="btn btn-block"><i
+                                                            class="fa fa-chevron-left"></i></button>
+                                                    <button type="button" id="search{{ i }}_leftAll"
+                                                            class="btn btn-block"><i
+                                                            class="fa fa-backward"></i></button>
+                                                </div>
+
+                                                <div class="col-sm-5 col-xs-5">
+                                                    <select name="to{{ i }}[]" id="search{{ i }}_to"
+                                                            class="form-control" size="8"
+                                                            multiple="multiple">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <div class="bar hidden">
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-success" aria-valuenow="0" aria-valuemax="100"
+                                     aria-valuemin="0" style="width:0;">
+                                    0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="result-alert" tabindex="-1" role="dialog"
+         aria-labelledby="result-modal" aria-hidden="true">
+        <div class="modal-loading"></div>
+        <div class="modal-dialog" style="width:30%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                        ×
+                    </button>
+                    <h4 class="modal-title" id="modal-label">
+                        提示
+                    </h4>
+                </div>
+                <div id="modal-body" class="modal-body" style="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm"
+                            data-dismiss="modal">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    {#    <script src="/static/js/jquery.dataTables.min.js"></script>#}
+    <script src="/static/js/csrf.js"></script>
+    {#    <script src="/static/js/dataTables.bootstrap.min.js"></script>#}
+    <script src="/static/jQuery-Smart-Wizard/js/jquery.smartWizard.js"></script>
+    <script src="/static/SmartWizard-master/smartwizard/js/jquery.smartWizard.min.js"></script>
+
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+    {#    <script src="/static/js/validator.min.js"></script>#}
+    <script type="text/javascript">
+        //$(document).ready(function () {
+        // Initialize Smart Wizard with ajax content load
+        //$('#wizard').smartWizard({});
+        //});
+        $(document).ready(function () {
+
+            {% if job_check %}
+                show_alert_modal("存在未结单任务，请先作废再创建工单！");
+                $("#result-alert").modal("show").on('hide.bs.modal', function () {
+                    window.location.href = "{% url 'job_index' %}";
+                });
+            {% endif %}
+
+            $(function () {
+                $("#aFloatTools_Show").click(function () {
+                    $('#divFloatToolsView').animate({width: 'show', opacity: 'show'}, 100, function () {
+                        $('#divFloatToolsView').show();
+                    });
+                    $('#aFloatTools_Show').hide();
+                    $('#aFloatTools_Hide').show();
+                });
+                $("#aFloatTools_Hide").click(function () {
+                    $('#divFloatToolsView').animate({width: 'hide', opacity: 'hide'}, 100, function () {
+                        $('#divFloatToolsView').hide();
+                    });
+                    $('#aFloatTools_Show').show();
+                    $('#aFloatTools_Hide').hide();
+                });
+            });
+
+
+            $("#job_batchs select").val("{{ batch_num }}");
+            $(".js-basic-single").select2({
+                placeholder: '请选择要发布的版本',
+                width: 'resolve'
+            }).val("{{ job.version }}").trigger("change");
+
+
+            $('#job_create').submit(function (e) {
+                //$(".step-content").css('display', 'block');
+                var formData = new FormData(this);
+                var err_msg = "";
+                step_href = $("#smartwizard ul").find("li.active").children("a").attr("href");
+                step = parseInt(step_href.split('-')[1]);
+                formData.append("batchs", step);
+                if (step === 1) {
+                    step_t = step + 1;
+                } else {
+                    step_t = step;
+                }
+                //src_type = $("input[name='source']").val();
+                //job_type = $("input[name='ptype']").val();
+                src_type = formData.get('source');
+                job_type = formData.get('ptype');
+                if (src_type === "1") {
+                    if ("{{ project.container }}" === "0") {
+                        war = "{{ project.war }}.war";
+                    } else {
+                        war = "{{ project.war }}.tar.gz";
+                    }
+                    var file_name = formData.get("files").name;
+                    if ($("input[type='file']").val() === "") {
+
+                        err_msg = err_msg + "未选择文件！<br />";
+                    } else if (job_type === "0" && file_name !== war) {
+
+                        err_msg = err_msg + "全量包错误，请重新选择！<br />";
+                    }
+                }
+                if (job_type === "1" && formData.get('path') === "") {
+
+                    err_msg = err_msg + "发布路径不能为空！<br />";
+                }
+                input_value = formData.get("version");
+                var pattern = /^[a-zA-Z0-9._-]{2,}$/;
+                if (input_value === "" || input_value === null) {
+
+                    err_msg = err_msg + "发布版本号不能为空！<br />";
+                } else if (!pattern.test(input_value)) {
+
+                    err_msg = err_msg + "发布版本号不能包含中文或特殊字符！<br />";
+                }
+
+                for (var i = 1; i < step_t; i++) {
+                    var t = 't' + i;
+                    t = $("select[name='to" + i + "[]'] option").map(function () {
+                        return $(this).val();
+                    }).get().join(',');
+                    //to_select = formData.get("to" + i + "[]");
+                    if (t === "" || t === null) {
+                        if (step === 1 || step === 2) {
+                            err_msg = "未选择第1批次的发布主机！<br />";
+                        } else {
+                            err_msg = err_msg + "未选择第" + i + "批次的发布主机！<br />";
+                        }
+                    }
+                    formData.append('to' + i + '[]', t);
+                }
+
+                if (err_msg !== "") {
+                    show_alert_modal(err_msg);
+                    return false;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'job_create' pid=pid action='add' %}',
+                    data: formData,
+                    xhr: function () {
+                        var myXhr = $.ajaxSettings.xhr();
+                        if (myXhr.upload) {
+                            myXhr.upload.addEventListener('progress', progress, false);
+                        }
+                        return myXhr;
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+
+                    success: function (data) {
+                        //console.log(data);
+
+                        //alert('data returned successfully');
+                        if (data.retcode === 0) {
+                            r = "创建任务完成";
+                        } else {
+                            r = "创建任务异常";
+                        }
+                        show_alert_modal(r);
+                        $("#result-alert").modal("show").on('hide.bs.modal', function () {
+                            window.location.href = "{% url 'job_list' %}";
+                        });
+                    },
+
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+
+                e.preventDefault();
+
+            });
+
+            function progress(e) {
+
+                if (e.lengthComputable) {
+                    var max = e.total;
+                    var current = e.loaded;
+
+                    var Percentage = parseInt((current * 100) / max);
+                    //console.log(Percentage);
+
+                    $(".bar").removeClass("hidden");
+                    $(".progress-bar").attr("aria-valuenow", Percentage).css("width", Percentage + "%").html(Percentage + "%");
+
+                    if (Percentage >= 100) {
+                        // process completed
+                        //$(".progress").addClass("hidden");
+                        $(".bar").html('<div class="alert alert-info">上传完成</div>');
+                    }
+                }
+            }
+
+
+            function show_alert_modal(r) {
+                $("#result-alert .modal-body").html(r);
+                $("button").removeClass("disabled");
+                //$("#job_create button").removeClass("disabled");
+                $("#result-alert").modal({backdrop: 'static', keyboard: false});
+            }
+
+            function file(arg) {
+                var html = '<div class="step-label col-md-8 col-sm-8 col-xs-12"><input id="fileupload" type="file" name="files" multiple /></div>';
+                $("#file").html(html);
+                if (arg === '0') {
+                    $("#fileupload").removeAttr("multiple");
+                }
+            }
+
+
+            function path(arg, arg2) {
+                var html = '<label class="control-label col-md-12 col-sm-12 col-xs-12"><label for="id_version_tips">' +
+                    arg + '</label><span class="required">*</span></label>' + '<div class="col-md-8 col-sm-8 col-xs-12">' +
+                    '<div id="form-step-0" role="form" data-toggle="validator"><div class="form-group"><input type="text" name="path" placeholder="'
+                    + arg2 + '" class="form-control" id="id_path" /><div class="help-block with-errors"></div></div></div></div>';
+                $("#path").html(html);
+            }
+
+            $("#full").bind("click", function () {
+                $("input[name='ptype']").val("0");
+                $("#path").empty();
+                $("#fileupload").removeAttr("multiple");
+            });
+            $("#increase").bind("click", function () {
+                $("input[name='ptype']").val("1");
+                path("发布路径", "webapps/ROOT/WEB-INF/classes");
+                $("#fileupload").attr("multiple", true);
+            });
+
+            $("#local").bind("click", function () {
+                $("input[name='source']").val("1");
+                job_type = $("input[name='ptype']").val();
+                file(job_type);
+
+            });
+
+            $("#svn").bind("click", function () {
+                $("input[name='source']").val("0");
+                $("#file").empty();
+                {#                 #}
+            });
+
+
+            {% for i in batchs %}
+                $("#search" +{{ i }}).multiselect({
+                    search: {
+                        left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                        right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    },
+                    fireSearch: function (value) {
+                        return value.length > 0;
+                    }
+                });
+            {% endfor %}
+
+            // Toolbar extra buttons
+            var btnFinish = $('<button></button>').text('提交')
+                .addClass('btn btn-info')
+                .on('click', function () {
+                    $("button").addClass("disabled");
+                    {#                    step = $("#smartwizard ul").find("li.active").children("a").attr("href");#}
+                    {#                    ajax_submit(step.split("-")[1]);#}
+                });
+            //.on('click');//, function(){ alert('任务'); });
+            // Smart Wizard
+            $('#smartwizard').smartWizard({
+                {#                {% if pid %}#}
+                selected: 0,
+                {#                {% else %}#}
+                {#                    selected: 0,#}
+                {#                {% endif %}#}
+                lang: {
+                    next: '下一步',
+                    previous: '上一步',
+                },
+                keyNavigation: false,
+                theme: 'dots',
+                transitionEffect: 'fade',
+                toolbarSettings: {
+                    toolbarPosition: 'bottom',
+                    toolbarExtraButtons: [btnFinish]
+                }
+            });
+
+
+            // Initialize the leaveStep event
+            $("#smartwizard").on("leaveStep", function (e, anchorObject, stepNumber, stepDirection) {
+                //var step_1 = new Array();
+
+                if (stepNumber !== 0) {
+                    //alert(stepNumber);
+                    if (stepDirection === 'forward') {
+                        var a = 2, b = 1;
+                    } else {
+                        var a = 0, b = 1;
+                    }
+                    var obj = $("#step-" + (stepNumber + a) + " select[name='from[]']");
+                    obj.empty();
+                    $("#step-" + (stepNumber + b) + " select[name='from[]'] option").each(function () {
+                        var v = $(this).val();
+                        var t = $(this).text();
+                        obj.append($("<option></option>").val(v).text(t));
+                    });
+                }
+
+            });
+        });
+
+        function step_add(obj) {
+            state = $(obj).attr('name');
+            html_li = '<li><a href="#step-' + (parseInt(state) + 1) + '">发布批次 ' + state + '<br/><small>' +
+                '选择全量发布的主机</small></a></li>';
+            html = '                                    <div id="step-' + (parseInt(state) + 1) + '" class="step-content">' +
+                '<div class="row step-css">' +
+                '<div class="col-sm-5">' +
+                '<select name="from[]" id="search' + state + '" class="form-control" size="8"' +
+                'multiple="multiple">' +
+                '</select>' +
+                '</div>' +
+                '<div class="col-sm-2">' +
+                '<button type="button" id="search' + state + '_rightAll" class="btn btn-block"><i' +
+                'class="fa fa-forward"></i></button>' +
+                '<button type="button" id="search' + state + '_rightSelected" class="btn btn-block">' +
+                '<i class="fa fa-chevron-right"></i></button>' +
+                '<button type="button" id="search' + state + '_leftSelected" class="btn btn-block"><i' +
+                'class="fa fa-chevron-left"></i></button>' +
+                '<button type="button" id="search' + state + '_leftAll" class="btn btn-block"><i' +
+                'class="fa fa-backward"></i></button>' +
+                '</div>' +
+                '<div class="col-sm-5">' +
+                '<select name="to' + state + '[]" id="search' + state + '_to" class="form-control" size="8"' +
+                'multiple="multiple">' +
+                '</select>' +
+                '</div></div></div>';
+            $("#smartwizard ul").append(html_li);
+            $("#smartwizard .step-body").append(html);
+        }
+
+
+    </script>
+
+{% endblock %}
+

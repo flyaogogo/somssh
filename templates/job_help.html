@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block css %}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title ">
+                            <h2>
+                                帮助
+                                <small>Help</small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+
+
+                        <div class="panel-group" id="panel-294567">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-host-manage">
+                                        <div>一、主机管理</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-host-manage" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dt>
+                                                1. 添加区域
+                                            </dt>
+                                            <dd>
+                                                在《主机管理》菜单下，点击 区域管理 菜单，添加区域
+                                            </dd>
+                                            <dt>
+                                                2. 添加主机
+                                            </dt>
+                                            <dd>
+                                                在《主机管理》菜单下，点击 添加主机 菜单，添加主机
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/zone_manage.gif"/></div>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/host_manage.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-project-manage">
+                                        <div>二、项目管理</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-project-manage" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《管理后台》->《项目管理》下进行项目添加</p>
+						在《项目管理》菜单下，可进行项目添加、编辑等管理.<br />
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/project_manage.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-process-manage">
+                                        <div>三、进程管理</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-process-manage" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《项目列表》页面，点击 进程管理 按钮，对项目进行进程的启动、重启、停止管理</p>
+						在《发布管理》->《项目进程》菜单下，点击<label>进程管理</label>，可对项目进程进行启行、重启、停止等操作管理.<br />
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/process_manage.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-config-manage">
+                                        <div>四、配置管理</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-config-manage" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《项目列表》页面，点击 配置变更 按钮，对项目的配置文件进行更新或回滚管理</p>
+						在《发布管理》->《发布任务》菜单下，点击 <label>配置变更</label> 按钮，选择配置更新或配置回滚.<br />
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/config_manage.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-job-create">
+                                        <div>五、创建任务</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-job-create" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dt>
+                                                1. 创建任务
+                                            </dt>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《项目列表》页面，点击 创建任务 按钮，创建完整的任务单流程；</p>
+						在《发布管理》->《发布任务》菜单下，点击 <label>创建任务</label> 按钮，创建完整的任务单.<br />
+                                                选择发布类型、发布版本及各发布批次的主机.<br />
+                                            </dd>
+                                            <dt>
+                                                2. 快速创建任务
+                                            </dt>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《项目列表》页面，点击 任务模板 按钮，先创建发布批次主机的模板（一次创建，终身使用）.</p>
+						在《发布管理》->《发布任务》菜单下，首次使用前需要先创建模板（一次创建，终身使用）.<br />
+						点击<label>任务模板</label>按钮，创建发布批次主机的模板.<br />
+                                                点击<label>快速创建</label>按钮，选择发布类型、发布版本完成任务单的创建<br />
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/job_create.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-job-exec">
+                                        <div>六、版本发布</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-job-exec" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dd>
+                                                在《发布管理》->《任务列表》页面，选择相应的任务单进行操作，首先确认项目部署用户及发布版本，进入下一步后点击 发布
+                                                按钮即可(已改版，配图仅供参考).<br />发布完成后如要回退（未离开当前页面；如已离开当前页面，请查看 七、版本回退），直接点击 回退
+                                                按钮
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/exec_full_job.gif"/></div>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/exec_incr_job.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-294567"
+                                       href="#panel-element-job-rollback">
+                                        <div>七、版本回退</div>
+                                    </a>
+                                </div>
+                                <div id="panel-element-job-rollback" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <dl>
+                                            <dd>
+                                                <p style="text-decoration:line-through">在《任务记录》页面，点击 版本回退 进行项目回退</p>
+						在《发布管理》-> 《发布记录》菜单下 进行项目回退(已改版，配图仅供参考)
+                                            </dd>
+                                        </dl>
+
+                                        <div class="thumbnail">
+                                            <img style="cursor: pointer;" onclick="modalImg(this);" alt=""
+                                                 src="/static/img/help/job_rollback.gif"/></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="result-modal-salt" tabindex="-1" role="dialog"
+         aria-labelledby="result-modal" aria-hidden="true">
+        <div class="modal-loading"></div>
+        <div class="modal-dialog" style="width:90%;">
+            <div class="modal-content">
+                <div id="modal-body" class="modal-body" style="">
+                </div>
+                <!--<div class="modal-footer">
+
+                </div>-->
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        function modalImg(obj) {
+            var img = obj.src;
+            var html = '<img src="' + img + '" width="100%" data-dismiss="modal" style="cursor: pointer;" aria-hidden="true" />';
+            $("#modal-body").html(html);
+            $("#result-modal-salt").modal("show");
+        }
+    </script>
+{% endblock %}

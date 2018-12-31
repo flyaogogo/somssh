@@ -1,0 +1,481 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/codemirror.css" rel="stylesheet">
+    <link href="/static/mergely-3.4.5/css/mergely.css" rel="stylesheet">
+    <link href="/static/bootstrap-select/css/select2.min.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ project.name }} {{ page_name }}发布｜
+                                <small><a href="{% url 'job_index' %}">发布任务</a></small>
+                            </h2>
+                            <input type="hidden" name="project_id" value="{{ project_id }}"/>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="row clearfix">
+                            <label class="control-label col-md-12 col-sm-12 col-xs-12">配置文件</label>
+                            <div class="col-md-3 col-sm-3 col-xs-3">
+                                <select name="config" class="js-basic-multiple js-states form-control">
+                                    {% for c in config_list %}
+                                        <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                                {#                <input type="text" name="config" class="form-control" placeholder="application.conf" value/>#}
+                            </div>
+                            <div class="col-md-9 col-sm-9 col-xs-9">
+                                <button name="get_config" class="btn btn-info btn-sm"
+                                        onclick="get_config('{% url 'project_config' pid=pid %}', 'get');">获取配置
+                                </button>
+                                <button id="push_config" name="push_config" class="btn btn-primary btn-sm"
+                                        onclick="push_config('{% url 'project_config' pid=pid %}');">更新配置
+                                </button>
+
+                            </div>
+                        </div>
+                        <div class="row clearfix col-md-3 col-sm-3 col-xs-12" style="margin-top:10px;">
+                            <textarea id="random_str" class="form-control" type="text" value=""></textarea>
+                            <button name="random" class="btn btn-info btn-sm" style="margin-top:10px;"
+                                    onclick="random_str()">生成字串
+                            </button>
+                        </div>
+                        <span id="create_config" class="control-label col-md-12 col-sm-12 col-xs-12"
+                              style="padding-left:0;margin-top:15px;"></span>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div id="id-content" class="row clearfix hidden">
+                                {#                    <label class="control-label col-md-12 col-sm-12 col-xs-12" style="padding-left:0;margin-top:15px;">文件内容</label>#}
+                                <div class="control-label col-md-12 col-sm-12 col-xs-12"
+                                     style="padding-left:0;margin-top:15px;">
+                                    <a href="#" onclick="show_help();"><span style="font-size: 16px;"><i
+                                            class="fa fa-question"></i> </span></a>
+                                    {% for region in all_regions %}
+                                        <span class="label label-info">{{ region.name }} - {{ region.region }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12 column config-left">
+                    <span class="control-config control-label col-md-12 col-sm-12 col-xs-12">
+                        <a name="text_lock" class="badge bg-blue-sky hidden-xs"
+                           onclick="btn_toggle(this, 'content_sls');" state="1"><i class="fa fa-lock"></i> </a>
+                        <a name="text_diff" class="badge bg-blue-sky hidden-xs"
+                           onclick="text_diff(0);" data-toggle="tooltip" title="差异对比"><i
+                                class="fa fa-exchange"></i> </a>
+                        变量定义 <small>| 变量定义</small></span>
+                                    <textarea id="content_sls" class="form-control" rows="20"
+                                              style="resize:vertical;border-top-right-radius:0;border-top-left-radius:0;"></textarea>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12 column config-right">
+                    <span class="control-config control-label col-md-12 col-sm-12 col-xs-12">
+                        <a name="text_lock" class="badge bg-blue-sky hidden-xs"
+                           onclick="btn_toggle(this, 'content_config');" state="1"><i class="fa fa-lock"></i> </a>
+                        <a name="text_diff" class="badge bg-blue-sky hidden-xs"
+                           onclick="text_diff(1);" data-toggle="tooltip" title="差异对比"><i
+                                class="fa fa-exchange"></i> </a>
+                        主配置文件 <small
+                            id="config_tips">{% templatetag openvariable %} salt['pillar.get'](region + ':变量', '默认值') {% templatetag closevariable %}</small></span>
+                                    <textarea id="content_config" class="form-control" rows="20"
+                                              style="resize:vertical;border-top-right-radius:0;border-top-left-radius:0;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix"></div>
+                        <div class="x_title page-header">
+                            <h1>
+                                选择发布主机
+                                <small>项目：{{ project.name }}</small>
+                            </h1>
+                        </div>
+                        <div class="ajax-loading"></div>
+
+                        <form id="job_config" method="post" action="" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left:0;">
+                                <div class="row clearfix">
+                                    <div class="col-sm-5">
+                                        <select name="from[]" id="search1" class="form-control" size="8"
+                                                multiple="multiple">
+                                            {% for host in all_hosts %}
+                                                <option value="{{ host.ip }}">{{ host.hostname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <button type="button" id="search1_rightAll" class="btn btn-block"><i
+                                                class="fa fa-forward"></i></button>
+                                        <button type="button" id="search1_rightSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-right"></i></button>
+                                        <button type="button" id="search1_leftSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-left"></i></button>
+                                        <button type="button" id="search1_leftAll" class="btn btn-block"><i
+                                                class="fa fa-backward"></i></button>
+                                    </div>
+
+                                    <div class="col-sm-5">
+                                        <select name="to1[]" id="search1_to" class="form-control" size="8"
+                                                multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <button id="release_config" name="release_config" class="btn btn-info btn-sm"
+                                onclick="release_config('{% url 'project_config' pid=pid %}');"
+                                style="margin-top:15px;">发布配置
+                        </button>
+
+                        <!-- 模态框（Modal） -->
+                        <div class="modal fade" id="result-modal-salt" tabindex="-1" role="dialog"
+                             aria-labelledby="result-modal" aria-hidden="true">
+                            <div class="modal-loading"></div>
+                            <div class="modal-dialog" style="width:70%;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <b class="modal-title" id="result-modal">详细信息</b>
+                                    </div>
+                                    <div id="modal-body" class="modal-body" style="">
+
+                                    </div>
+                                    <!--<div class="modal-footer">
+
+                                    </div>-->
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+                        <!-- 模态框（Modal） -->
+                        <div class="modal fade" id="diff-modal-salt" tabindex="-1" role="dialog"
+                             aria-labelledby="diff-modal" aria-hidden="true">
+                            <div class="modal-loading"></div>
+                            <div class="modal-dialog" class="col-md-12 col-sm-12 col-xs-12" style="width:89.9999%;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <b class="modal-title" id="diff-modal">配置文件差异对比</b>
+                                    </div>
+                                    <div id="modal-body-diff" class=" modal-body">
+
+                                        <div id="mergely-resizer" style="">
+                                            <div id="compare"></div>
+                                        </div>
+
+                                    </div>
+                                    <!--<div class="modal-footer">
+
+                                    </div>-->
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+                        <input id="config_old" type="hidden" value=""/>
+                        <input id="sls_old" type="hidden" value=""/>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="result-alert" tabindex="-1" role="dialog"
+         aria-labelledby="result-modal" aria-hidden="true">
+        <div class="modal-loading"></div>
+        <div class="modal-dialog" style="width:30%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                        ×
+                    </button>
+                    <h4 class="modal-title" id="modal-label">
+                        提示
+                    </h4>
+                </div>
+                <div id="modal-body" class="modal-body" style="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm"
+                            data-dismiss="modal">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/select2/select2/js/select2.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/codemirror.min.js"></script>
+    <script src="/static/mergely-3.4.5/js/mergely.min.js"></script>
+    <script src="/static/js/json-format.js"></script>
+
+    <script>
+        $("#release_config").attr('disabled', 'disabled');
+
+        $('.js-basic-multiple').select2({tags: true});
+
+        $('#search1').multiselect({
+            search: {
+                left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            },
+            fireSearch: function (value) {
+                return value.length > 0;
+            }
+        });
+
+        function btn_toggle(obj, arg) {
+            {#            $("#id-content-editor-lhs").css('display', 'none');#}
+            {#            $("#id-content-editor-rhs").css('width', '96%');#}
+            var newstate = $(obj).attr('state') ^ 1,
+                text = newstate ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock-alt"></i>';
+            if (newstate === 0) {
+                $('#' + arg).attr('readonly', false);
+            } else {
+
+                $('#' + arg).attr('readonly', true);
+            }
+            $(obj).html(text);
+            $(obj).attr('state', newstate);
+
+        }
+
+        function isJson(str) {
+            if (typeof str == 'string') {
+                try {
+                    JSON.parse(str);
+                    if (str.indexOf('{') > -1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                } catch (e) {
+                    //console.log(e);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        function mergely_diff(oldf, newf) {
+            var editor = $('#compare');
+            editor.mergely({
+                editor_width: '97.3333%',
+                //editor_height: 700,
+                //autoupdate: false,
+                width: '100%',
+                height: 700,
+                //autoupdate: true,
+                cmsettings: {readOnly: true/*, lineWrapping: true*/},
+
+            });
+            editor.mergely('lhs', oldf);
+            editor.mergely('rhs', newf);
+            //editor.mergely('update');
+        }
+
+        function text_diff(arg) {
+            //$(".modal-dialog").css("width", "89.9999%");
+            //$(".modal-title").html("配置文件差异对比");
+            content_sls_temp = $("#content_sls").val();
+            if (isJson(content_sls_temp) === false) {
+                $("#result-alert .modal-body").html("JSON格式错误，请检查!");
+                $("#result-alert button").removeClass("disabled");
+                $("#result-alert").modal({backdrop: 'static', keyboard: false});
+                return false;
+            }
+            $("#diff-modal-salt").modal("show");
+            var content_sls = JSON.stringify(JSON.parse(content_sls_temp), null, 4);
+            $("#content_sls").val(content_sls);
+            if (arg === 1) {
+                var config_old = $("#config_old").val();
+                var config_new = $("#content_config").val();
+            } else {
+                var config_old = $("#sls_old").val();
+                var config_new = $("#content_sls").val();
+            }
+            //alert(config_new);
+            mergely_diff(config_old, config_new);
+
+        }
+
+        function text_insert() {
+            var content = $("span[name='span_content']").html();
+            var str = $("#content_config").val() + content + '\n';
+            $("#content_config").val(str);
+        }
+
+        function get_config(url, action) {
+            config = $("select[name='config']").val();
+            $("#release_config").attr('disabled', 'disabled');
+            if (config === '') {
+                return false;
+            }
+            $("#content_sls").val("");
+            $("#content_config").val("");
+            $("#create_config").html("");
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: {config: config, action: action},
+                dataType: "json",
+                success: function (ret) {
+                    if (ret.retcode === 1) {
+                        $("button[name='push_config']").attr("disabled", true);
+                        //get_config(url, action);
+                        $("#id-content").addClass("hidden");
+                        action = 'create';
+                        html = '配置文件不存在，是否新建？<a href="#" name="create_config"' +
+                            'onclick="get_config(\'' + url + '\',\'' + action + '\');" style="margin-top:15px;">新建配置</a>';
+                        $("#create_config").html(html);
+                    } else if (ret.retcode === 2) {
+                        get_config(url, 'get');
+                    } else if (ret.retcode === 3) {
+                        $("#result-alert .modal-body").html("暂无区域，请先添加！<a href='{% url 'region_add' %}' style='text-decoration:underline'>添加区域</a>");
+                        $("#result-alert button").removeClass("disabled");
+                        $("#result-alert").modal({backdrop: 'static', keyboard: false});
+                    }
+                    else {
+                        //$("textarea").attr('readonly', false);
+                        $("#content_sls").attr('readonly', true);
+                        $("#content_config").attr('readonly', true);
+                        var project_id = $("input[name='project_id']").val();
+                        var file_name = $("select[name='config']").val();
+                        var config_tips = "| <span name='span_content' onclick='text_insert();' style='cursor:pointer'>\{\{ pillar['"
+                            + project_id + "']" + "['" + file_name.split('.')[0] + "']['变量名'] \}\}</span>";
+                        //$("#config_tips").html(config_tips);
+                        $("button[name='push_config']").removeAttr("disabled");
+                        $("#id-content").removeClass("hidden");
+
+                        sls_json = ret.sls;
+                        $("#sls_old").val(sls_json);
+                        $("#content_sls").val(sls_json);
+                        $("#config_old").val(ret.config);
+                        $("#content_config").val(ret.config);
+                    }
+
+                }
+            })
+        }
+
+        function push_config(url) {
+            $("a[name='text_lock']").attr("state", 1).html('<i class="fa fa-lock"></i>');
+            content_sls_temp = $("#content_sls").val();
+
+            content_sls = content_sls_temp;
+            $("#content_sls").val(content_sls);
+            content_config = $("#content_config").val();
+            config = $("select[name='config']").val();
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {action: 'update', config: config, content_sls: content_sls, content_config: content_config},
+                dataType: "json",
+                success: function (ret) {
+                    $("textarea").attr('readonly', true);
+                    $("#release_config").removeAttr('disabled');
+                    $("#push_config").attr('disabled', 'disabled');
+                    $("#result-alert .modal-body").html(ret);
+                    $("#result-alert button").removeClass("disabled");
+                    $("#result-alert").modal({backdrop: 'static', keyboard: false});
+                }
+            })
+        }
+
+
+        function show_help() {
+            img = '<img src="/static/img/help/config_sample.png" style="width: 100%;">';
+            $("#modal-body").html(img);
+            $("#result-modal-salt").modal("show");
+            // TODO
+            $("#result-modal-salt").modal({backdrop: 'static', keyboard: false});
+        }
+
+        function random_str() {
+            old_str = $("#random_str").val();
+            new_list = old_str.split('\n')
+            console.log(new_list);
+            new_str = '';
+            for (i in new_list)
+                new_str += "{% templatetag openvariable %} pillar[region]['" + new_list[i] + "'] {% templatetag closevariable %}\n" + "{% templatetag openvariable %} salt['pillar.get'](region + ':" + new_list[i] + "', '') {% templatetag closevariable %}\n";
+            $("#random_str").val(new_str);
+        }
+
+        function release_config(url) {
+            $(".ajax-loading").show();
+            var hosts = $("#search1_to option").map(function () {
+                return $(this).val();
+            }).get().join(",");
+            config = $("select[name='config']").val();
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {action: 'release', hosts: hosts, config: config},
+                dataType: "json",
+                success: function (ret) {
+                    $(".ajax-loading").hide();
+                    var html = '';
+                    var fnum = 1;
+                    $.each(ret, function (i, item) {
+                        var r = item['retcode'];
+                        if (r !== 0) {
+                            var spancss = 'bg-red';
+                            var icss = 'fa-times';
+                        } else {
+                            var spancss = 'bg-green';
+                            var icss = 'fa-check';
+                        }
+                        html = html + '<div class="panel-group" id="panel-75693-' + fnum + '"><div class="panel panel-default"><div class="panel-heading">' +
+                            '<a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-75693-' + fnum +
+                            '" href="#panel-' + fnum + '">' + i + '<span class="badge pull-right ' + spancss +
+                            '"><i class="fa ' + icss + '"></i></span></a></div>' +
+                            '<div id="panel-' + fnum + '" class="panel-collapse collapse"><div class="panel-body step' + fnum +
+                            '"><p>Retcode: ' + item['retcode'] + '<br />Comment: ' +
+                            item['comment'] + 'Stderr: ' + item['stderr'] + '<br />Stdout' + item['stdout'] + '<br />Diff: <br />'
+                            + item['diff'] + '<br /></p></div></div></div></div>';
+                        fnum = fnum + 1;
+                    })
+                    $("#modal-body").html(html);
+                    $("#result-modal-salt").modal("show");
+                }
+            })
+        }
+    </script>
+{% endblock %}

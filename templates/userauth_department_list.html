@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load myfilter %}
+{% load myuserauth %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/jquery.treeview.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <a href="{% url 'user_department_add' %}" style="float:left;" class="btn btn-info btn-sm"
+                               role="button"><i class="fa fa-plus"></i></a>
+                            <h2><a href="{% url 'user_department_list' %}">部门管理</a></h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a href="javascript:changeDisplay(1)" data-toggle="tooltip" data-placement="bottom"
+                                       title="树状显示"><i class="fa fa-sitemap"></i></a></li>
+                                <li><a href="javascript:changeDisplay(2)" data-toggle="tooltip" data-placement="bottom"
+                                       title="块状显示"><i class="fa fa-th"></i></a></li>
+                                <li><a class="collapse-link" data-toggle="tooltip" data-placement="bottom" title="折叠内容"><i
+                                        class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content" style="padding-top:10px;border:none">
+
+
+                            <div id="show_col" style="{% if pid %}display:none;{% endif %}">
+                                {% if all_departments %}
+                                    <div style="width: 22%; border-right: 1px solid #D8D8D8; min-height: 300px; overflow: auto; float: left">
+                                        <ul id="tree">
+
+                                            {% if top_dept.id|getNextDept %}　　<!-- 使用模板过滤器，判断得到直属下级业务列表，过滤器代码在楼下 -->
+                                                <li>{% for node in top_dept.id|getNextDept %}　<!-- 遍历下级业务节点 -->
+                                                    {% include "tag_departmentNode.html" %}　　
+                                                    <!-- 引用业务节点 li 模板，（此处核心设计）楼下单独解释 -->
+                                                {% endfor %}
+                                                </li>
+                                            {% endif %}
+
+                                        </ul>
+
+                                    </div>
+                                    <div id="users" style=" min-height: 600px; overflow: auto;">
+                                        <blockquote id="department" class="message"
+                                                    style="margin-left:10px;">{{ initname }}</blockquote>
+
+                                        <div class="x_content">
+                                            <div class="bs-example" data-example-id="simple-jumbotron">
+                                                <div class="x_content" style="width:90%">
+                                                    <table id="datatable" class="table table-striped table-bordered"
+                                                           style="width: 100%">
+                                                        <thead>
+                                                        <tr>
+                                                            <th hidden>用户ID</th>
+                                                            <th>用户</th>
+                                                            <th>邮箱</th>
+                                                            <th>状态</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody id="user_tr">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div id="show_table" style="{% if not pid %}display: none;{% endif %}">
+                                {% for g in all_departments|dictsort:"pk" %}
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2><a href="{% url 'user_department_list' %}?sub_department={{ g.pk }}"
+                                                       data-toggle="tooltip" data-placement="right"
+                                                       title="点击进入部门分组">{{ g.deptname }}</a>
+                                                </h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <li><a href="
+                                                            {% if g.parent_id %}{% url 'user_department_sub_manage' pid=g.parent_id aid=g.pk action='edit' %}
+                                            {% else %}{% url 'user_department_manage' aid=g.pk action='edit' %}
+                                            {% endif %}"><i class="fa fa-pencil"></i></a></li>
+                                                    <li><a href="{% url 'user_department_add_sub' pid=g.pk %}"><i
+                                                            class="fa fa-plus"></i></a></li>
+                                                    <li><a href="#" data-toggle="modal"
+                                                           data-target="#reqDelete-{{ g.pk }}"><i
+                                                            class="fa fa-trash-o "></i></a></li>
+                                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+
+                                                    <!-- 模态框（Modal） -->
+                                                    <div class="modal fade" id="reqDelete-{{ g.pk }}" tabindex="-1"
+                                                         role="dialog" aria-labelledby="reqDelete" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close"
+                                                                            data-dismiss="modal" aria-hidden="true">
+                                                                        &times;
+                                                                    </button>
+                                                                    <h4 class="modal-title" id="reqDelete">提示</h4>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    确认是否删除？
+                                                                    <div><br/><strong>{{ g.deptname }}</strong></div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-default btn-sm"
+                                                                            data-dismiss="modal">关闭
+                                                                    </button>
+                                                                    <a style="margin:4px;" class="btn btn-danger btn-sm"
+                                                                       href="{% url 'user_department_manage' aid=g.pk action='delete' %}">删除</a>
+                                                                </div>
+                                                            </div><!-- /.modal-content -->
+                                                        </div><!-- /.modal-dialog -->
+                                                    </div><!-- /.modal -->
+
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content">
+                                                <div class="bs-example" data-example-id="simple-jumbotron">
+                                                    <div class="x_content">
+                                                        <table id="datatable1"
+                                                               class="table table-striped table-bordered">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>用户</th>
+                                                                <th>手机</th>
+                                                                <th>所属组</th>
+                                                                <th>状态</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for u in g.pk|department_users %}
+                                                                <tr>
+                                                                    <td>{{ u.first_name }}</td>
+                                                                    <td>{{ u.mobile }}</td>
+                                                                    <td>{% for k,v in u|user_departments:"2" %}
+                                                                        <span class="label label-info table_span">
+                                                        <!--<a href="#" name="{{ k }}" id="{{ v }}" onclick="getDeptUser(false, {{ k }});">{{ v }}</a>-->
+                                                                            {{ v }}</span>&nbsp;{% endfor %}</td>
+                                                                    <td>{% if u.is_active %}
+                                                                        <span class="label label-info">激活</span>{% else %}
+                                                                        <span class="label label-danger">冻结</span>{% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/jquery.treeview.js"></script>
+    <script src="/static/js/display_select.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#tree").treeview({
+                collapsed: true,
+                animated: "medium",
+                control: "#sidetreecontrol",
+                persist: "location"
+            });
+        })
+
+    </script>
+    <script>
+        <!--
+        Datatables -->
+        {% if all_departments %}
+            $(document).ready(function () {
+                getDeptUser(false, {{ initid }});
+                $('#datatable').dataTable();
+            });
+            <!-- /Datatables -->
+
+            function getDeptUser(obj, id) {
+                if (id) {
+                    var aid = id;
+                } else {
+                    var aid = obj.name;
+                    var deptname = obj.id;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'get_department_user' %}",
+                    data: {aid: aid},
+                    dataType: "html",
+                    success: function (ret) {
+
+                        var ret = eval('(' + ret + ')');
+                        var html = "";
+                        var td = "";
+                        for (i in ret) {
+                            if (ret[i]["is_active"]) {
+                                span = "<span class='label label-info'>激活</span>";
+                            } else {
+                                span = "<span class='label label-danger'>冻结</span>";
+                            }
+                            html = html + "<tr><td hidden>" + ret[i]["pk"] + "</td><td>" + ret[i]["first_name"] + "</td><td>" + ret[i]['email'] + "</td><td>" + span + "</td>" + "</tr>";
+                        }
+                        $("#department").html(deptname);
+                        $("#user_tr").html(html);
+                    },
+                    errors: function (e) {
+                        alert("error");
+                    }
+                });
+            }
+        {% endif %}
+    </script>
+{% endblock %}

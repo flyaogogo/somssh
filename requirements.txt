@@ -1,0 +1,19 @@
+Tornado==4.2.1
+Msgpack==0.4.8
+Django==1.11.2
+ruamel.yaml
+psutil
+django-crontab
+qcloudapi-sdk-python
+#yum install pysvn
+#apt-get install python-svn
+Image
+pyotp
+qrcode
+celery
+celery-with-redis
+django-celery
+anyjson
+django-redis
+pymongo
+#mongoengine

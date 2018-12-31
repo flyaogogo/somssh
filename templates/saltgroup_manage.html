@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load myinclusion %}
+{% load myuserauth %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'saltgroup_list' %}">分组管理</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <form class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% for i in form %}
+                                    {% if forloop.counter != 4 %}
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12"
+                                                   style="text-align:left;">{{ i.label_tag }}
+                                            </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                {{ i }}
+                                                <div style="padding-top:10px;">
+                                                    {{ i.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {{ i }}
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>所有主机</h4></div>
+                                        <select id="search_minion" class="form-control" size="8" multiple="multiple">
+
+                                        </select>
+                                    </div>
+
+                                    <div class="col-xs-2" style="padding-top:60px;">
+                                        <button type="button" id="search_minion_rightAll" class="btn btn-block"><i
+                                                class="fa fa-forward"></i></button>
+                                        <button type="button" id="search_minion_rightSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-right"></i></button>
+                                        <button type="button" id="search_minion_leftSelected" class="btn btn-block"><i
+                                                class="fa fa-chevron-left"></i></button>
+                                        <button type="button" id="search_minion_leftAll" class="btn btn-block"><i
+                                                class="fa fa-backward"></i></button>
+                                    </div>
+
+                                    <div class="col-xs-5">
+                                        <div class="x_title"><h4>已选主机</h4></div>
+                                        <select id="search_minion_to" name="hosts" class="form-control" size="8"
+                                                multiple="multiple">
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div>
+                                        {% ifequal action 'add' %}
+                                            <button id="send" type="submit" class="btn btn-success">添加</button>
+                                        {% endifequal %}
+                                        {% ifequal action 'edit' %}
+                                            <button id="send" type="submit" class="btn btn-success">更新</button>
+                                        {% endifequal %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- validator -->
+    <script type="text/javascript" src="/static/js/validator.min.js"></script>
+    <script type="text/javascript" src="/static/js/multiselect.min.js"></script>
+    <script type="text/javascript" src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            {% if id %}
+                ajax_host("{{ id }}");
+                //$("#id_user").attr("disabled", "true");
+            {% else %}
+                ajax_host("0");
+            {% endif %}
+            //alert(hosts);
+            $("#id_hosts option:selected").each(function () {
+                var oValue = $(this).val().toString();
+                var oText = $(this).text().toString();
+                var option = $("<option>").val(oValue).text(oText);
+                $("#search_minion_to").append(option);
+            })
+
+
+            $('#search_minion').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                },
+                fireSearch: function (value) {
+                    return value.length > 0;
+                }
+            });
+
+        });
+
+        document.getElementById("id_name").focus();
+
+
+        function ajax_host(pid) {
+            var user = $("select[name='user']").val();
+            $("#search_minion_to").empty();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'get_host' %}",
+                data: {user: user, arg: 'hostgroup', pid: pid},
+                dataType: "json",
+                success: function (ret) {
+                    var obj = document.getElementById('search_minion');
+                    obj.options.length = 0;
+                    for (i in ret) {
+                        obj.options.add(new Option(ret[i], i));
+                    }
+                    //var user_select = $("#id_user").val();
+                    //$("select[name='hostuser']").val(user_select);
+                }
+            })
+        }
+    </script>
+
+
+{% endblock %}

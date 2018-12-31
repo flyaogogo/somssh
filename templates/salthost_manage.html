@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'salthost_list' %}">主机列表</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <form class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% for i in form %}
+                                    {% if forloop.counter == 4 %}
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">主机用户/密码:</label>
+                                            <div id="clone_4" class="col-md-2 col-sm-2 col-xs-12">
+                                                <input type="text" name="user" value=""
+                                                       {% ifequal action 'add' %}required=""{% endifequal %}
+                                                       placeholder="Username" class="form-control" id="id_user">
+                                            </div>
+                                            <div id="clone_5" class="col-md-2 col-sm-2 col-xs-12">
+                                                <input type="password" name="password" id="id_password"
+                                                       {% ifequal action 'add' %}required=""{% endifequal %}
+                                                       placeholder="Password" class="form-control" maxlength="255">
+                                            </div>
+                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                                <a href="javascript:void(0);" onclick="plus();" role="button"
+                                                   name="plus" class="btn btn-sm btn-info" style="margin-right:0"><i
+                                                        class="fa fa-plus"></i></a>&nbsp;
+                                                <a href="javascript:void(0);" onclick="del();" role="button" name="del"
+                                                   class="btn btn-sm btn-warning"><i class="fa fa-minus"></i></a>
+                                            </div>
+                                        </div>
+                                        <div id="clone_add">
+                                            <div id="clone_user0"></div>
+                                        </div>
+                                        {% ifequal action 'edit' %}
+                                            <div class="item form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12">已添加主机用户:</label>
+                                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                                    {% for k,v in user_list.items %}<a href="javascript:void(0);"
+                                                                                       onclick="change_user(this, {{ k }});"
+                                                                                       role="button"
+                                                                                       class="btn btn-default source">{{ v }}</a>{% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endifequal %}
+
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">{{ i.label_tag }}</label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                {{ i }}
+                                                <div style="padding-top:10px;">
+                                                    {{ i.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">{{ i.label_tag }}
+                                            </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                {{ i }}
+                                                <div style="padding-top:10px;">
+                                                    {{ i.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        {% ifequal action 'add' %}
+                                            <button id="send" type="submit" class="btn btn-success">添加</button>
+                                        {% endifequal %}
+                                        {% ifequal action 'edit' %}
+                                            <button id="send" type="submit" class="btn btn-success">更新</button>
+                                        {% endifequal %}
+                                    </div>
+                                </div>
+                            </form>
+
+
+                            <!-- 模态框（Modal） -->
+                            <div class="modal fade" id="user-modal-salt" tabindex="-1" role="dialog"
+                                 aria-labelledby="user-modal" aria-hidden="true">
+                                <div class="modal-eloading"></div>
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <b class="modal-title" id="user-modal">修改信息</b>&nbsp;
+                                        </div>
+                                        <div id="modal-body" class="modal-body">
+                                            <div class="panel-group" id="accordion">
+                                                <form class="form-horizontal form-border" method="post" action=""
+                                                      enctype="multipart/form-data">
+                                                    {% csrf_token %}
+                                                    <div class="item form-group">
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">主机用户:</label>
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <label id="clone_username" class="control-label"></label>
+                                                            <input id="clone_userid" name="delete_userid" type="hidden"
+                                                                   value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="item form-group">
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">主机密码:</label>
+                                                        <div id="clone_password" class="col-md-6 col-sm-6 col-xs-12">
+                                                            <input type="password" name="password" id="ajax_password"
+                                                                   required="" placeholder="Password"
+                                                                   class="form-control" maxlength="255">
+                                                        </div>
+                                                    </div>
+                                                    <div class="item form-group">
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12"></label>
+                                                        <div id="update_result" class="col-md-6 col-sm-6 col-xs-12">
+                                                        </div>
+                                                    </div>
+                                                    <div class="ln_solid"></div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-6 col-md-offset-3">
+                                                            <a href="javascript:void(0);"
+                                                               onclick="update_user(this, {{ id }});"
+                                                               class="btn btn-success">更新</a>
+                                                            <a href="javascript:void(0);"
+                                                               onclick="delete_user(this, {{ id }});"
+                                                               class="btn btn-danger">删除</a>
+                                                            <button type="button" class="btn btn-default"
+                                                                    data-dismiss="modal">关闭
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <!--<div class="modal-footer">
+
+                                        </div>-->
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal-dialog -->
+                            </div><!-- /.modal -->
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/bootstrap-modal-vertical.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+        function plus() {
+            var num = parseInt($("div[id^='clone_user']:last").prop("id").match(/\d+/g), 10) + 1;
+            var label = '<div id="clone_user' + num + '" class="item form-group"><label class="control-label col-md-3 col-sm-3 col-xs-12"></label>';
+            $("#clone_add").append(label);
+            $("#clone_4").clone().appendTo("#clone_user" + num);
+            $("#clone_5").clone().appendTo("#clone_user" + num);
+            $("#clone_add").append("</div>");
+        }
+
+        function del() {
+            var num = parseInt($("div[id^='clone_user']:last").prop("id").match(/\d+/g), 10);
+            alert(num);
+            if (num == 0) {
+                return false;
+            }
+            $("#clone_user" + num).remove();
+        }
+
+
+        function change_user(obj, uid) {
+            $("#update_result").html("");
+            $("#ajax_password").val("");
+            $("#clone_username").html($(obj).text());
+            $("#clone_userid").val(uid);
+            $("#user-modal-salt").modal("show");
+        }
+
+
+        function update_user(obj, hostid) {
+//    var f=$(obj).closest("form");
+//    var tgt_select=f.find("select[name='tgt_select']").val();
+//    var arg=f.find("input[name='arg']").val();
+            var pwd = $("#ajax_password").val();
+            var uid = $("#clone_userid").val();
+            if (pwd === '') {
+                $("#update_result").html("密码不能为空");
+                return false;
+            }
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'update_user' %}",
+                data: {password: pwd, hostid: hostid, uid: uid},
+                dataType: "html",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    var ret = JSON.parse(ret);
+                    if (ret == "ok") {
+                        $("#update_result").html("更新成功");
+                        $("#ajax_password").val('');
+                    } else {
+                        $("#update_result").html("更新出错");
+                    }
+//            $("#result-modal-salt").modal("show");
+                }
+            })
+        }
+
+        function delete_user(obj, hostid) {
+            var uid = $("#clone_userid").val();
+            $(".eloading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'delete_user' %}",
+                data: {hostid: hostid, uid: uid},
+                dataType: "html",
+                success: function (ret) {
+                    $(".eloading").hide();
+                    var ret = JSON.parse(ret);
+                    if (ret == "ok") {
+                        $("#update_result").html("用户已删除");
+                        $("#clone_hostid").val('');
+                    } else {
+                        $("#update_result").html("删除用户出错");
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}
+

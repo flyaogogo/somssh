@@ -1,0 +1,257 @@
+/*body {*/
+/*{*/
+/*font: 20px Montserrat, sans-serif;*/
+/*}*/
+/*{*/
+/*line-height: 1.8;*/
+/*}*/
+/*{*/
+/*color: #f5f6f7;*/
+/*}*/
+/*}*/
+
+body {
+    padding-top: 70px;
+}
+
+p {
+    font-size: 16px;
+}
+
+.margin {
+    margin-bottom: 45px;
+}
+
+.bg-white {
+    background: #fff !important;
+    border: 1px solid #fff !important;
+    color: #73879C
+}
+
+.bg-green {
+    background: #1ABB9C !important;
+    border: 1px solid #1ABB9C !important;
+    color: #fff
+}
+
+.bg-red {
+    background: #E74C3C !important;
+    border: 1px solid #E74C3C !important;
+    color: #fff
+}
+
+.bg-blue {
+    background: #3498DB !important;
+    border: 1px solid #3498DB !important;
+    color: #fff
+}
+
+.bg-orange {
+    background: #F39C12 !important;
+    border: 1px solid #F39C12 !important;
+    color: #fff
+}
+
+.bg-purple {
+    background: #9B59B6 !important;
+    border: 1px solid #9B59B6 !important;
+    color: #fff
+}
+
+.bg-blue-sky {
+    background: #50C1CF !important;
+    border: 1px solid #50C1CF !important;
+    color: #fff
+}
+
+.bg-1 {
+    background-color: #1abc9c; /* Green */
+    color: #ffffff;
+}
+
+.bg-2 {
+    background-color: #474e5d; /* Dark Blue */
+    color: #ffffff;
+}
+
+.bg-3 {
+    background-color: #ffffff; /* White */
+    color: #555555;
+}
+
+.bg-4 {
+    background-color: #2f2f2f; /* Black Gray */
+    color: #fff;
+    margin-top: 80px;
+}
+
+/*.container-fluid {*/
+    /*padding-top: 70px;*/
+    /*padding-bottom: 70px;*/
+/*}*/
+
+.container-nav {
+    padding: 0px;
+}
+
+/*.navbar {*/
+/*padding-top: 15px;*/
+/*padding-bottom: 30px;*/
+/*border: 0;*/
+/*border-radius: 0;*/
+/*margin-bottom: 50px;*/
+/*font-size: 12px;*/
+/*letter-spacing: 5px;*/
+/*}*/
+
+/*.navbar-nav li a:hover {*/
+/*color: #1abc9c !important;*/
+/*}*/
+
+/*.btn .caret {*/
+/*float: right;*/
+/*margin-top: 8px;*/
+/*}*/
+
+.multiselect-selected-text {
+    float: left;
+}
+
+.step-css {
+    margin-top: 30px;
+    float: auto;
+    /*margin-left:30px;*/
+}
+
+.step-item {
+    margin-left: 30px;
+
+}
+
+.step-label {
+    margin-bottom: 15px;
+}
+
+.return_ok {
+    color: #000000;
+}
+
+.return_err {
+    color: #E74C3C;
+}
+
+.btn-dark {
+    color: #E9EDEF;
+    background-color: #4B5F71;
+    border-color: #364B5F
+}
+
+.btn-dark:hover, .btn-dark:focus, .btn-dark:active, .btn-dark.active, .open .dropdown-toggle.btn-dark {
+    color: #FFFFFF;
+    background-color: #394D5F;
+    border-color: #394D5F
+}
+
+.job-link {
+    padding-top: 90px;
+    padding-bottom: 70px;
+    display: block;
+    background: #18bc9c;
+    color: #fff;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.masthead a.active, .masthead a:active, .masthead a:focus, .masthead a:hover {
+    color: #fff;
+    background: #128f76;
+    /*transition: all ease .5s;*/
+    text-decoration: none;
+}
+
+#job-scroll {
+    position: relative;
+    top: -80px; // 偏移值
+    display: block;
+    height: 0;
+    overflow: hidden;
+    margin-top: 30px;
+}
+
+#mainNav .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.navbar {
+    //display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    //padding: .5rem 1rem;
+}
+
+.column {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.ajax-loading, .modal-loading {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #fff url("/static/img/loading.gif") no-repeat center center;
+    opacity: .75;
+    filter: alpha(opacity=75);
+    z-index: 1020
+}
+
+.job-help {
+    padding-top:80px;
+    margin-top:-80px;
+}
+
+.job-help-footer, .job-help-footer a {
+    color: #fff;
+    text-align:left;
+}
+
+.config-left {
+    float: left;
+    padding-right: 15px;
+}
+
+.config-right {
+    float: right;
+    padding-right: 15px;
+}
+
+.control-config {
+    margin-top:15px;
+    color: #fff;
+    font-weight: bold;
+    padding:8px;
+    background: #18BC9C;
+    border-top: 1px solid #18BC9C;
+    border-right: 1px solid #18BC9C;
+    border-left: 1px solid #18BC9C;
+    border-top-right-radius:5px;
+    border-top-left-radius:5px;
+}
+
+#reload ul {
+    -webkit-padding-start:0;
+}
+#reload ul li {
+    float:left;
+    list-style: none;
+    padding-right:10px;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #fff;
+    background-color: #128f76;
+}

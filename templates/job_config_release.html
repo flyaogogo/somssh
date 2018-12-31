@@ -1,0 +1,113 @@
+{% extends 'job_base.html' %}
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title page-header">
+                <h1>
+                    帮助
+                    <small>Help</small>
+                </h1>
+            </div>
+
+            <div style="margin-bottom:60px;">
+                <a href="#job-create" class="list-group-item">创建任务</a>
+                <a href="#job-exec" class="list-group-item">项目发布</a>
+                <a href="#job-rollback" class="list-group-item">项目回退</a>
+                <a href="#project-manage" class="list-group-item">项目管理</a>
+            </div>
+
+            <div class="x_content col-md-12 col-sm-12 col-xs-12">
+                <h4 id="job-create" class="job-help">
+                    一、创建任务
+                </h4>
+                <dl>
+                    <dt>
+                        1. 创建任务
+                    </dt>
+                    <dd>
+                        在《创建任务》页面，点击 创建任务 按钮，创建完整的任务单流程；<br/>
+                        选择发布类型、发布版本及各发布批次的主机
+                    </dd>
+                    <dt>
+                        2. 快速创建任务
+                    </dt>
+                    <dd>
+                        在《创建任务》页面，点击 任务模板 按钮，先创建发布批次主机的模板（一次创建，终身使用）；<br/>
+                        点击 快速创建 按钮，选择发布类型、发布版本完成任务单的创建
+                    </dd>
+                </dl>
+                <div class="row">
+                    <div class="thumbnail">
+                        <img alt="" src="/static/img/help/create_job.gif"/></div>
+                </div>
+
+
+                <h4 id="job-exec" class="job-help">
+                    二、项目发布
+                </h4>
+                <dl>
+                    <dd>
+                        在《任务列表》页面，选择相应的任务单进行操作，首先确认项目部署用户及发布版本，进入下一步后点击 发布 按钮即可，发布完成后如要回退（未离开当前页面），直接点击 回退 按钮
+                    </dd>
+                </dl>
+                <div class="row">
+                    <div class="thumbnail">
+                        <img alt="" src="/static/img/help/exec_full_job.gif"/></div>
+                </div>
+                <div class="row">
+                    <div class="thumbnail">
+                        <img alt="" src="/static/img/help/exec_incr_job.gif"/></div>
+                </div>
+
+
+                <h4 id="job-rollback" class="job-help">
+                    三、项目回退
+                </h4>
+                <dl>
+                    <dd>
+                        在《任务记录》页面，点击 版本回退 进行项目回退
+                    </dd>
+                </dl>
+                <div class="row">
+                    <div class="thumbnail">
+                        <img alt="" src="/static/img/help/job_rollback.gif"/></div>
+                </div>
+
+
+                <h4 id="project-manage" class="job-help">
+                    四、项目管理
+                </h4>
+                <dl>
+                    <dd>
+                        在《管理后台》->《项目管理》下进行项目添加
+                    </dd>
+                </dl>
+                <div class="row">
+                    <div class="thumbnail">
+                        <img alt="" src="/static/img/help/project_manage.gif"/></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script>
+
+    </script>
+{% endblock %}
+

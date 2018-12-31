@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>{{ page_name }}
+                                <small>|&nbsp;<a href="{% url 'project_list' %}">项目列表</a></small>
+                            </h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                       aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#">Settings 1</a>
+                                        </li>
+                                        <li><a href="#">Settings 2</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <form id="project" class="form-horizontal form-border" method="post" action=""
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% for i in form %}
+
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">{{ i.label_tag }}
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            {{ i }}
+                                            <div style="padding-top:10px;">
+                                                {{ i.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        {% ifequal action 'add' %}
+                                            <input id="send" type="button" class="btn btn-success" onclick="form_submit()" value="添加" />
+                                        {% endifequal %}
+                                        {% ifequal action 'edit' %}
+                                            <input id="send" type="button" class="btn btn-success" onclick="form_submit()" value="更新" />
+                                        {% endifequal %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/bootstrap-modal-vertical.js"></script>
+    <script src="/static/js/multiselect.min.js"></script>
+    <script src="/static/js/csrf.js"></script>
+    <script type="text/javascript">
+
+
+        $('#search1').multiselect({
+            search: {
+                left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            },
+            fireSearch: function (value) {
+                return value.length > 0;
+            }
+        });
+
+        $("#id_container input").get({{ radio_val }}).checked = true;
+
+        function ajax_hostuser() {
+            var tgt_select = $("select[name='ip']").val();
+            {#            if(!tgt_select){#}
+            {#                return false;#}
+            {#            }#}
+            $.ajax({
+                type: "POST",
+                url: "{% url 'ajax_hostuser' %}",
+                data: {tgt_select: tgt_select, arg: 'project'},
+                dataType: "html",
+                success: function (ret) {
+                    var ret = JSON.parse(ret);
+                    var html = '';
+                    var obj = document.getElementById('id_hostuser');
+                    obj.options.length = 0;
+                    for (i in ret) {
+                        obj.options.add(new Option(ret[i], i));
+                    }
+                    var user_select = $("#id_user").val();
+                    $("select[name='hostuser']").val(user_select);
+                }
+            })
+        }
+
+        function ajax_host(pid) {
+            var user = $("select[name='user']").val();
+            $("#search1_to").empty();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'get_host' %}",
+                data: {user: user, arg: 'project', pid:pid},
+                dataType: "json",
+                success: function (ret) {
+                    var obj = document.getElementById('search1');
+                    obj.options.length = 0;
+                    for (i in ret) {
+                        obj.options.add(new Option(ret[i], i));
+                    }
+                    //var user_select = $("#id_user").val();
+                    //$("select[name='hostuser']").val(user_select);
+                }
+            })
+        }
+
+
+        function form_submit(){
+            $("#id_user").removeAttr("disabled");
+            $("#project").submit();
+        }
+    </script>
+{% endblock %}
+
